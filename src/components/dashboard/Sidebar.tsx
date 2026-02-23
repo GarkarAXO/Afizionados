@@ -19,8 +19,18 @@ export default function Sidebar() {
     <aside className="w-64 bg-white dark:bg-[#1a170e] border-r border-gray-200 dark:border-[#433d28] h-screen fixed left-0 top-0 z-20 transition-all">
       <div className="p-6 border-b border-gray-200 dark:border-[#433d28]">
         <Link href="/" className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#d4af35] rounded-lg flex items-center justify-center text-[#201d13] font-black">A</div>
-          <span className="font-black tracking-widest text-lg dark:text-white uppercase">Afizionados</span>
+          {/* Logo para modo claro */}
+          <img 
+            src="/img/afizionadosW.png" 
+            alt="Afizionados Logo" 
+            className="h-10 w-auto object-contain dark:hidden"
+          />
+          {/* Logo para modo oscuro */}
+          <img 
+            src="/img/afizionadosB.png" 
+            alt="Afizionados Logo" 
+            className="h-10 w-auto object-contain hidden dark:block"
+          />
         </Link>
       </div>
       

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -20,12 +21,13 @@ export default function LoginPage() {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       const data = await response.json();
 
       if (data.success) {
+        // Si 'Recordarme' está marcado, podríamos usar cookies de larga duración en el futuro
         localStorage.setItem('token', data.data.token);
         localStorage.setItem('user', JSON.stringify(data.data.user));
         router.push('/dashboard');
@@ -52,12 +54,11 @@ export default function LoginPage() {
           <div className="relative z-10 flex flex-col justify-between p-12 h-full">
             <div>
               <div className="flex items-baseline gap-4 mb-2">
-                {/* Espacio para el LOGO Rectangular */}
-                <div className="h-12 w-auto flex items-center">
-                  <span className="text-3xl font-black tracking-[0.2em] text-white/90" style={{ WebkitTextStroke: '1px rgba(255, 255, 255, 0.8)', color: 'transparent' }}>
-                    AFIZIONADOS
-                  </span>
-                </div>
+                <img 
+                  src="/img/afizionadosB.png" 
+                  alt="Afizionados Logo" 
+                  className="h-32 w-auto object-contain"
+                />
               </div>
             </div>
             
@@ -108,7 +109,7 @@ export default function LoginPage() {
             <div>
               <div className="flex justify-between mb-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña</label>
-                <Link href="#" className="text-xs font-semibold text-[#d4af35] hover:underline">¿Olvidaste tu contraseña?</Link>
+                <Link href="/auth/forgot-password" title="Recuperar contraseña" className="text-xs font-semibold text-[#d4af35] hover:underline">¿Olvidaste tu contraseña?</Link>
               </div>
               <div className="relative">
                 <input 
@@ -120,6 +121,17 @@ export default function LoginPage() {
                   required
                 />
               </div>
+            </div>
+
+            <div className="flex items-center">
+              <input 
+                type="checkbox" 
+                id="remember-me"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 text-[#d4af35] focus:ring-[#d4af35] border-gray-300 dark:border-[#605739] rounded bg-white dark:bg-[#302c1c]" 
+              />
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-600 dark:text-gray-400 cursor-pointer select-none">Recordarme por 30 días</label>
             </div>
 
             <button 

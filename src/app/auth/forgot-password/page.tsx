@@ -30,9 +30,11 @@ export default function ForgotPasswordPage() {
           <div className="absolute inset-0 bg-black/70 backdrop-blur-[1px]"></div>
           <div className="relative z-10 flex flex-col justify-between p-12 h-full">
             <div>
-              <span className="text-3xl font-black tracking-[0.2em] text-white/90" style={{ WebkitTextStroke: '1px rgba(255, 255, 255, 0.8)', color: 'transparent' }}>
-                AFIZIONADOS
-              </span>
+              <img 
+                src="/img/afizionadosB.png" 
+                alt="Afizionados Logo" 
+                className="h-24 w-auto object-contain"
+              />
             </div>
             <div className="space-y-4">
               <h1 className="text-4xl lg:text-5xl font-black text-white leading-tight">

@@ -58,11 +58,11 @@ export default function RegisterPage() {
           <div className="relative z-10 flex flex-col justify-between p-12 h-full">
             <div>
               <div className="flex items-baseline gap-4 mb-2">
-                <div className="h-12 w-auto flex items-center">
-                  <span className="text-3xl font-black tracking-[0.2em] text-white/90" style={{ WebkitTextStroke: '1px rgba(255, 255, 255, 0.8)', color: 'transparent' }}>
-                    AFIZIONADOS
-                  </span>
-                </div>
+                <img 
+                  src="/img/afizionadosB.png" 
+                  alt="Afizionados Logo" 
+                  className="h-24 w-auto object-contain"
+                />
               </div>
             </div>
             

@@ -5,10 +5,10 @@ import { apiResponse, apiError } from '@/lib/api-response'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auctionId = params.id
+    const { id: auctionId } = await params;
     const authHeader = req.headers.get('authorization')
     const token = authHeader?.split(' ')[1]
     const payload = token ? verifyToken(token) : null
