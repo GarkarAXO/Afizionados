@@ -1,0 +1,244 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+enum Gender {
+  M
+  F
+  OTRO
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELED
+  REFUNDED
+}
+
+enum ProductImageType {
+  MAIN 
+  GALLERY
+}
+
+enum AuctionStatus {
+  PENDING
+  ACTIVE
+  ENDED
+  CANCELED
+}
+
+model User {
+  id String @id @default(cuid())
+  name String?
+  lastNamePaterno String?
+  lastNameMaterno String?
+  email String @unique
+  password String
+  role Role @default(CLIENT)
+  phone String?
+  birthDate DateTime?
+  gender Gender?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders  Order[]
+  addresses Address[]
+  cart      Cart?
+  favorites Favorite[]
+  bids      Bid[]
+}
+
+model Address {
+  id String @id @default(cuid())
+  userId String
+  street String
+  city String
+  state String
+  zipCode String
+
+  user User @relation(fields:[userId], references: [id])  
+}
+
+model Order {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields:[userId], references: [id])
+
+  status  OrderStatus @default(PENDING)
+  totalCents Int 
+  currency String @default("MXN")
+
+  stripeSessionId String? @unique
+  stripePymentId String? @unique
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id])
+  
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+  
+  quantity Int
+  priceAtPurchaseCents Int
+}
+
+model Cart {
+  id String @id @default(cuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+  
+  items CartItem[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id String @id @default(cuid())
+  cartId String
+  cart Cart @relation(fields: [cartId], references: [id])
+  
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+  
+  quantity Int @default(1)
+}
+
+model Favorite {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+model Category{
+  id String @id @default(cuid())
+  name String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parentId String?
+  parent Category? @relation("Subcategories", fields: [parentId], references: [id])
+  subcategories Category[] @relation("Subcategories")
+
+  products Product[]
+}
+
+model Product{
+  id String @id @default(cuid())
+  title String
+  priceCents Int
+  description String?
+  currency String @default("MXN")
+  isActive Boolean @default(true)
+  stock Int @default(1)
+  isAuction Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categoryId String?
+  category Category? @relation(fields: [categoryId], references: [id])
+
+  details ProductDetail?
+  certificates ProductCertificate[]
+  images ProductImage[]
+  orderItems OrderItem[]
+  cartItems CartItem[]
+  favorites Favorite[]
+  auctions Auction[]
+}
+
+model Auction {
+  id String @id @default(cuid())
+  productId String
+  product Product @relation(fields: [productId], references: [id])
+
+  startingPriceCents Int
+  currentPriceCents Int @default(0)
+  startTime DateTime
+  endTime DateTime
+  status AuctionStatus @default(PENDING)
+
+  bids Bid[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bid {
+  id String @id @default(cuid())
+  auctionId String
+  auction Auction @relation(fields: [auctionId], references: [id])
+  
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  amountCents Int
+  createdAt DateTime @default(now())
+}
+
+model ProductDetail {
+  id String @id @default(cuid())
+  productId String @unique
+
+  fichaTecnica String?
+  infoColeccionista String?
+  cuidadosProduct String?
+
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model ProductCertificate {
+  id String @id @default(cuid())
+  productId String
+
+  title String
+  description String?
+
+  fileUrl String? 
+  issuedBy String? 
+  issuedAt DateTime?
+
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model ProductImage {
+  id String @id @default(cuid())
+  productId String
+
+  url String
+  alt String?
+  type ProductImageType @default(GALLERY)
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId])
+}
