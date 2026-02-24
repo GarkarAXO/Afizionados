@@ -9,6 +9,7 @@ interface Product {
   priceCents: number;
   stock: number;
   isActive: boolean;
+  isAuction: boolean;
   categoryId: string | null;
   description: string | null;
   category?: { name: string };
