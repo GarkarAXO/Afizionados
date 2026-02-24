@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
+import { verifyToken } from '@/lib/auth'
 import { apiResponse, apiError } from '@/lib/api-response'
 
 // GET: Listar subastas (Con filtros para admin)
