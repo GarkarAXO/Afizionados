@@ -37,11 +37,22 @@ export async function POST(req: NextRequest) {
 
     const { password: _, ...userWithoutPassword } = user
 
-    return apiResponse(
+    const response = apiResponse(
       { user: userWithoutPassword, token },
       200,
       'Login exitoso'
     )
+
+    // Configurar cookie para que el proxy/middleware la detecte
+    response.cookies.set('token', token, {
+      httpOnly: true,
+      secure: true, // Siempre true para Vercel (HTTPS)
+      sameSite: 'lax',
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60, // 30 días o 1 día
+      path: '/',
+    })
+
+    return response
   } catch (error) {
     return apiError('Error durante el inicio de sesión', 500, error)
   }
