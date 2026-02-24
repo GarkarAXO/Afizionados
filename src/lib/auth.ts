@@ -7,8 +7,8 @@ export interface JWTPayload {
   role: string
 }
 
-export const signToken = (payload: JWTPayload) => {
-  return jwt.sign(payload, SECRET, { expiresIn: '1d' })
+export const signToken = (payload: JWTPayload, expiresIn: string = '1d') => {
+  return jwt.sign(payload, SECRET, { expiresIn })
 }
 
 export const verifyToken = (token: string): JWTPayload | null => {
