@@ -6,6 +6,11 @@
     color: transparent;
   }
 
+  .text-outline-gold {
+    -webkit-text-stroke: 1px #d4af35;
+    color: transparent;
+  }
+
   @keyframes loadingProgress {
     from { width: 0%; }
     to { width: 100%; }
