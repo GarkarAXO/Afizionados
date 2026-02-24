@@ -39,6 +39,7 @@ export default function ProductsAdminPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -64,6 +65,13 @@ export default function ProductsAdminPage() {
     fetchProducts();
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   const fetchProducts = async () => {
     try {
@@ -143,13 +151,14 @@ export default function ProductsAdminPage() {
       
       const data = await response.json();
       if (data.success) {
+        setMessage({ type: 'success', text: 'Pieza actualizada correctamente en la bóveda' });
         setIsEditModalOpen(false);
         fetchProducts();
       } else {
-        alert(data.message || 'Error al actualizar');
+        setMessage({ type: 'error', text: data.message || 'Error al actualizar' });
       }
     } catch (error) {
-      alert('Error de conexión al actualizar el producto');
+      setMessage({ type: 'error', text: 'Error de conexión al actualizar el producto' });
     }
   };
 
@@ -161,9 +170,12 @@ export default function ProductsAdminPage() {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) fetchProducts();
+      if (response.ok) {
+        setMessage({ type: 'success', text: 'Pieza retirada de la colección con éxito' });
+        fetchProducts();
+      }
     } catch (error) {
-      alert('Error al eliminar el producto');
+      setMessage({ type: 'error', text: 'Error al eliminar la pieza' });
     }
   };
 
@@ -185,8 +197,22 @@ export default function ProductsAdminPage() {
         </div>
       </div>
 
+      {message && (
+        <div className={`p-4 rounded-xl border font-black uppercase text-[10px] tracking-[0.2em] transition-all flex items-center gap-3 animate-bounce shadow-lg ${
+          message.type === 'success' 
+            ? 'bg-green-500/10 border-green-500/20 text-green-500' 
+            : 'bg-red-500/10 border-red-500/20 text-red-500'
+        }`}>
+          <span className="material-symbols-outlined text-sm">
+            {message.type === 'success' ? 'check_circle' : 'warning'}
+          </span>
+          {message.text}
+        </div>
+      )}
+
       <div className="bg-white dark:bg-[#1a170e] rounded-2xl border border-gray-200 dark:border-[#433d28] overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
+        {/* VISTA DESKTOP: TABLA */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 dark:bg-[#302c1c]/50 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
@@ -237,6 +263,52 @@ export default function ProductsAdminPage() {
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* VISTA MÓVIL: TARJETAS (360px) */}
+        <div className="md:hidden divide-y divide-gray-100 dark:divide-[#433d28]">
+          {loading ? (
+            <div className="p-12 text-center text-gray-500 animate-pulse uppercase text-[10px] tracking-widest">Sincronizando...</div>
+          ) : products.length === 0 ? (
+            <div className="p-12 text-center text-gray-500 uppercase text-[10px] tracking-widest">No hay piezas registradas</div>
+          ) : products.map((product) => {
+            const mainImage = product.images?.find(img => img.type === 'MAIN')?.url || product.images?.[0]?.url;
+            return (
+              <div key={product.id} className="p-4 space-y-4">
+                <div className="flex gap-4">
+                  <div onClick={() => mainImage && setSelectedImage(mainImage)} className="w-20 h-20 bg-gray-100 dark:bg-[#302c1c] rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 dark:border-[#433d28]">
+                    {mainImage ? <img src={mainImage} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-gray-400 text-3xl flex items-center justify-center h-full">image</span>}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <p className="font-black dark:text-white text-xs uppercase truncate leading-tight">{product.title}</p>
+                      <span className={`material-symbols-outlined text-xs flex-shrink-0 ${product.isAuction ? 'text-[#d4af35]' : 'text-gray-400'}`}>
+                        {product.isAuction ? 'gavel' : 'shopping_bag'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-[#d4af35] font-black uppercase tracking-widest mt-1">{product.category?.name || 'Gema suelta'}</p>
+                    <p className="text-sm font-black dark:text-white mt-2">${(product.priceCents / 100).toLocaleString('es-MX')}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <span className={`px-2 py-1 rounded-full font-black text-[8px] uppercase ${product.stock > 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                    {product.stock} disponibles
+                  </span>
+                  <div className="flex gap-1">
+                    <button onClick={() => openEditModal(product)} className="flex items-center gap-1 px-3 py-2 bg-gray-50 dark:bg-[#302c1c] rounded-lg text-gray-400 hover:text-[#d4af35] transition-colors">
+                      <span className="material-symbols-outlined text-sm">edit</span>
+                      <span className="text-[8px] font-black uppercase">Editar</span>
+                    </button>
+                    <button onClick={() => handleDelete(product.id)} className="flex items-center gap-1 px-3 py-2 bg-red-500/5 rounded-lg text-red-500/50 hover:text-red-500 transition-colors">
+                      <span className="material-symbols-outlined text-sm">delete</span>
+                      <span className="text-[8px] font-black uppercase">Borrar</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 

@@ -46,10 +46,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="bg-[#f8f7f6] dark:bg-[#121212] min-h-screen flex items-center justify-center p-4">
+    <div className="bg-[#f8f7f6] dark:bg-[#121212] min-h-screen flex items-center justify-center p-2 sm:p-4">
       <div className="w-full max-w-[1100px] flex flex-col md:flex-row bg-white dark:bg-[#1a170e] rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-[#433d28]">
         
-        {/* Lado Izquierdo (Diseño Visual) */}
+        {/* Lado Izquierdo (Diseño Visual) - Oculto en móvil */}
         <div 
           className="hidden md:flex md:w-1/2 relative bg-cover bg-center" 
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')" }}
@@ -83,50 +83,58 @@ export default function RegisterPage() {
         </div>
 
         {/* Lado Derecho (Formulario) */}
-        <div className="w-full md:w-1/2 p-8 lg:p-12 flex flex-col justify-center">
-          <div className="mb-8">
-            <h2 className="text-2xl lg:text-3xl font-bold mb-2 text-gray-900 dark:text-white">Crea tu Cuenta</h2>
-            <p className="text-gray-500 dark:text-gray-400">Forma parte de la comunidad de aficionados más grande.</p>
+        <div className="w-full md:w-1/2 p-6 sm:p-8 lg:p-12 flex flex-col justify-center">
+          <div className="mb-6 sm:mb-8 text-center md:text-left">
+            {/* Logo en móvil */}
+            <div className="md:hidden flex justify-center mb-6">
+              <img 
+                src="/img/afizionadosB.png" 
+                alt="Afizionados Logo" 
+                className="h-16 w-auto object-contain"
+              />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900 dark:text-white uppercase tracking-tight">Crea tu Cuenta</h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Forma parte de la comunidad de aficionados más grande.</p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm">
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-xs font-bold uppercase">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-5">
+          <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Nombre Completo</label>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre Completo</label>
               <input 
                 type="text" 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="block w-full px-4 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] focus:border-[#d4af35] outline-none transition-all text-gray-900 dark:text-white"
+                className="block w-full px-4 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] focus:border-[#d4af35] outline-none transition-all text-sm text-gray-900 dark:text-white font-medium"
                 placeholder="Tu nombre"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Correo Electrónico</label>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Correo Electrónico</label>
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full px-4 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] focus:border-[#d4af35] outline-none transition-all text-gray-900 dark:text-white"
+                className="block w-full px-4 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] focus:border-[#d4af35] outline-none transition-all text-sm text-gray-900 dark:text-white font-medium"
                 placeholder="coleccionista@arena.com"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Contraseña</label>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Contraseña</label>
               <input 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full px-4 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] focus:border-[#d4af35] outline-none transition-all text-gray-900 dark:text-white"
+                className="block w-full px-4 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] focus:border-[#d4af35] outline-none transition-all text-sm text-gray-900 dark:text-white font-medium"
                 placeholder="••••••••"
                 required
               />
@@ -135,16 +143,16 @@ export default function RegisterPage() {
             <button 
               type="submit" 
               disabled={loading}
-              className="w-full flex items-center justify-center py-4 bg-[#d4af35] text-[#201d13] font-black rounded-lg hover:brightness-110 active:scale-[0.99] transition-all tracking-wide uppercase disabled:opacity-50"
+              className="w-full flex items-center justify-center py-4 bg-[#d4af35] text-[#201d13] font-black rounded-lg hover:brightness-110 active:scale-[0.99] transition-all tracking-widest uppercase text-xs disabled:opacity-50 shadow-lg shadow-[#d4af35]/20 mt-2"
             >
               {loading ? 'Creando cuenta...' : 'Unirse a la Arena'}
             </button>
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
               ¿Ya tienes una cuenta? 
-              <Link href="/auth/login" className="font-bold text-[#d4af35] hover:underline underline-offset-4 ml-1">
+              <Link href="/auth/login" className="font-black text-[#d4af35] hover:underline underline-offset-4 ml-2">
                 Inicia Sesión
               </Link>
             </p>

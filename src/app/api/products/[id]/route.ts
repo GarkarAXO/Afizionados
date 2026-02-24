@@ -56,62 +56,57 @@ export async function PUT(
       title, priceCents, description, categoryId, stock, isAuction,
       mainImageUrl, details, certificates 
     } = body
+
+    // Pre-procesar datos fuera de la transacción para ganar velocidad
+    const finalPriceCents = Math.round(Number(priceCents) * 100)
+    const finalStock = parseInt(stock) || 0
     
-    const updated = await prisma.$transaction(async (tx) => {
-      // 1. Actualizar datos básicos del producto
-      const product = await tx.product.update({
-        where: { id },
-        data: {
-          title,
-          priceCents: Math.round(Number(priceCents) * 100),
-          description,
-          stock: parseInt(stock),
-          isAuction,
-          categoryId: categoryId || null,
+    // 1. Actualizar datos básicos (Sin transacción interactiva para mayor velocidad)
+    const updated = await prisma.product.update({
+      where: { id },
+      data: {
+        title,
+        priceCents: finalPriceCents,
+        description,
+        stock: finalStock,
+        isAuction: !!isAuction,
+        categoryId: categoryId || null,
+      }
+    })
+
+    // 2. Detalles (upsert)
+    if (details) {
+      await prisma.productDetail.upsert({
+        where: { productId: id },
+        update: {
+          fichaTecnica: details.fichaTecnica,
+          infoColeccionista: details.infoColeccionista,
+          cuidadosProduct: details.cuidadosProduct,
+          videoUrl: details.videoUrl
+        },
+        create: {
+          productId: id,
+          fichaTecnica: details.fichaTecnica,
+          infoColeccionista: details.infoColeccionista,
+          cuidadosProduct: details.cuidadosProduct,
+          videoUrl: details.videoUrl
         }
       })
+    }
 
-      // 2. Actualizar Detalles (Ficha, Video, Cuidados)
-      if (details) {
-        await tx.productDetail.upsert({
-          where: { productId: id },
-          update: {
-            fichaTecnica: details.fichaTecnica,
-            infoColeccionista: details.infoColeccionista,
-            cuidadosProduct: details.cuidadosProduct,
-            videoUrl: details.videoUrl
-          },
-          create: {
-            productId: id,
-            fichaTecnica: details.fichaTecnica,
-            infoColeccionista: details.infoColeccionista,
-            cuidadosProduct: details.cuidadosProduct,
-            videoUrl: details.videoUrl
-          }
-        })
-      }
+    // 3. Imagen Principal
+    if (mainImageUrl) {
+      await prisma.productImage.deleteMany({ where: { productId: id, type: 'MAIN' } })
+      await prisma.productImage.create({
+        data: { productId: id, url: mainImageUrl, type: 'MAIN', alt: title }
+      })
+    }
 
-      // 3. Actualizar Imagen Principal (tipo MAIN)
-      if (mainImageUrl) {
-        // Borramos la MAIN anterior si existe para este producto
-        await tx.productImage.deleteMany({
-          where: { productId: id, type: 'MAIN' }
-        })
-        // Creamos la nueva
-        await tx.productImage.create({
-          data: {
-            productId: id,
-            url: mainImageUrl,
-            type: 'MAIN',
-            alt: title
-          }
-        })
-      }
-
-      // 4. Actualizar Certificados (Simplificado: borrar y recrear)
-      if (certificates) {
-        await tx.productCertificate.deleteMany({ where: { productId: id } })
-        await tx.productCertificate.createMany({
+    // 4. Certificados
+    if (certificates) {
+      await prisma.productCertificate.deleteMany({ where: { productId: id } })
+      if (certificates.length > 0) {
+        await prisma.productCertificate.createMany({
           data: certificates.map((cert: any) => ({
             productId: id,
             title: cert.title,
@@ -121,9 +116,7 @@ export async function PUT(
           }))
         })
       }
-
-      return product
-    })
+    }
 
     return apiResponse(updated, 200, 'Bóveda actualizada con éxito')
   } catch (error) {

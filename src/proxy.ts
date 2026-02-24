@@ -5,7 +5,25 @@ import { verifyToken } from '@/lib/auth'
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Proteger rutas de API que no sean de autenticación
+  // 1. PROTECCIÓN DE PÁGINAS DEL DASHBOARD (Usando Cookies)
+  if (pathname.startsWith('/dashboard')) {
+    const token = request.cookies.get('token')?.value
+
+    if (!token) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/auth/login'
+      return NextResponse.redirect(url)
+    }
+
+    const decoded = verifyToken(token)
+    if (!decoded || decoded.role !== 'ADMIN') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+  }
+
+  // 2. PROTECCIÓN DE RUTAS DE API
   if (
     pathname.startsWith('/api') &&
     !pathname.startsWith('/api/auth') &&
@@ -22,18 +40,9 @@ export function proxy(request: NextRequest) {
     }
 
     const payload = verifyToken(token)
-
-    if (!payload) {
+    if (!payload || payload.role !== 'ADMIN') {
       return NextResponse.json(
-        { success: false, message: 'Invalid or expired token' },
-        { status: 401 }
-      )
-    }
-
-    // Opcionalmente, podrías verificar el rol aquí para rutas /api/admin/*
-    if (pathname.startsWith('/api/admin') && payload.role !== 'ADMIN') {
-      return NextResponse.json(
-        { success: false, message: 'Access denied' },
+        { success: false, message: 'Access denied: Admin role required' },
         { status: 403 }
       )
     }
@@ -43,5 +52,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*'],
+  matcher: ['/dashboard/:path*', '/api/:path*'],
 }

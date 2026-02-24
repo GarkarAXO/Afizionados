@@ -40,15 +40,20 @@ export async function POST(req: NextRequest) {
       return apiError('Title and priceCents are required', 400)
     }
 
+    // Pre-procesar datos
+    const finalPriceCents = Math.round(Number(priceCents))
+    const finalStock = parseInt(stock) || 1
+    const finalIsAuction = !!isAuction
+
     // Creación del producto con relaciones anidadas
     const product = await prisma.product.create({
       data: {
         title,
-        priceCents,
+        priceCents: finalPriceCents,
         description,
         categoryId: categoryId || null,
-        stock: parseInt(stock) || 1,
-        isAuction: isAuction || false,
+        stock: finalStock,
+        isAuction: finalIsAuction,
         // Imagen Principal y Galería
         images: {
           create: [
@@ -69,6 +74,7 @@ export async function POST(req: NextRequest) {
           create: certificates.map((cert: any) => ({
             title: cert.title,
             issuedBy: cert.issuedBy,
+            description: cert.description || '',
             fileUrl: cert.fileUrl
           }))
         } : undefined
