@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useTheme } from '@/context/ThemeContext';
 
 interface NavbarProps {
   onMenuClick: () => void;
 }
 
 export default function Navbar({ onMenuClick }: NavbarProps) {
+  const { theme, setTheme } = useTheme();
   const [search, setSearch] = useState('');
   const [searchResults, setSearchResults] = useState<any>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -15,6 +17,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     fetchNotifications();
@@ -127,6 +133,17 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
       </div>
       
       <div className="flex items-center gap-2 sm:gap-6">
+        {/* Selector de Tema */}
+        <button 
+          onClick={toggleTheme}
+          className="p-2 text-gray-500 hover:text-[#d4af35] transition-all"
+          title="Cambiar Tema"
+        >
+          <span className="material-symbols-outlined text-xl sm:text-2xl">
+            {theme === 'light' ? 'dark_mode' : 'light_mode'}
+          </span>
+        </button>
+
         {/* NOTIFICACIONES */}
         <div className="relative" ref={notifRef}>
           <button 

@@ -210,12 +210,12 @@ export default function ProductsAdminPage() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-[#1a170e] rounded-2xl border border-gray-200 dark:border-[#433d28] overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1a170e] rounded-2xl border border-gray-200 dark:border-[#433d28] overflow-hidden shadow-sm transition-colors duration-300">
         {/* VISTA DESKTOP: TABLA */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 dark:bg-[#302c1c]/50 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+              <tr className="bg-gray-50 dark:bg-[#302c1c]/50 text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest border-b border-gray-100 dark:border-[#433d28]">
                 <th className="px-6 py-4">Pieza</th>
                 <th className="px-6 py-4 text-center">Stock</th>
                 <th className="px-6 py-4">Inversión</th>
@@ -231,15 +231,15 @@ export default function ProductsAdminPage() {
               ) : products.map((product) => {
                 const mainImage = product.images?.find(img => img.type === 'MAIN')?.url || product.images?.[0]?.url;
                 return (
-                  <tr key={product.id} className="hover:bg-gray-50 dark:hover:bg-[#302c1c]/30 transition-colors group">
+                  <tr key={product.id} className="hover:bg-gray-50/80 dark:hover:bg-[#302c1c]/30 transition-colors group text-gray-900 dark:text-white">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div onClick={() => mainImage && setSelectedImage(mainImage)} className="w-12 h-12 bg-gray-100 dark:bg-[#302c1c] rounded-lg overflow-hidden flex items-center justify-center cursor-zoom-in border border-transparent group-hover:border-[#d4af35]/50 transition-all shadow-sm">
+                        <div onClick={() => mainImage && setSelectedImage(mainImage)} className="w-12 h-12 bg-gray-100 dark:bg-[#302c1c] rounded-lg overflow-hidden flex items-center justify-center cursor-zoom-in border border-gray-200 dark:border-transparent group-hover:border-[#d4af35]/50 transition-all shadow-sm">
                           {mainImage ? <img src={mainImage} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-gray-400">image</span>}
                         </div>
                         <div>
-                          <p className="font-bold dark:text-white text-sm uppercase">{product.title}</p>
-                          <p className="text-[10px] text-gray-500 uppercase font-bold">{product.category?.name || 'Gema suelta'}</p>
+                          <p className="font-bold text-sm uppercase">{product.title}</p>
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">{product.category?.name || 'Gema suelta'}</p>
                         </div>
                       </div>
                     </td>
@@ -356,9 +356,20 @@ export default function ProductsAdminPage() {
                     </div>
                     <div className="md:col-span-2 space-y-2">
                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Categoría</label>
-                      <select value={editFormData.categoryId || ''} onChange={e => setEditFormData({...editFormData, categoryId: e.target.value})} className="w-full bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-xl px-4 py-3 text-sm dark:text-white outline-none focus:ring-1 focus:ring-[#d4af35]">
+                      <select 
+                        value={editFormData.categoryId || ''} 
+                        onChange={e => setEditFormData({...editFormData, categoryId: e.target.value})} 
+                        className="w-full bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-[#d4af35] font-bold"
+                      >
                         <option value="">Sin categoría</option>
-                        {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                        {categories.filter(c => !c.parentId).map(root => (
+                          <optgroup key={root.id} label={root.name.toUpperCase()}>
+                            <option value={root.id}>{root.name} (Principal)</option>
+                            {categories.filter(sub => sub.parentId === root.id).map(sub => (
+                              <option key={sub.id} value={sub.id}>&nbsp;&nbsp;• {sub.name}</option>
+                            ))}
+                          </optgroup>
+                        ))}
                       </select>
                     </div>
                     <div className="md:col-span-2 space-y-2">

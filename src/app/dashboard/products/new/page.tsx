@@ -167,14 +167,14 @@ export default function NewProductPage() {
                 <select 
                   value={formData.categoryId}
                   onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
-                  className="w-full bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-xl px-4 py-3 text-sm dark:text-white focus:ring-1 focus:ring-[#d4af35] outline-none font-medium"
+                  className="w-full bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-[#d4af35] outline-none font-bold"
                 >
-                  <option value="">Seleccionar categoría...</option>
-                  {categories.map(cat => (
-                    <optgroup key={cat.id} label={cat.name}>
-                      <option value={cat.id}>{cat.name} (Principal)</option>
-                      {cat.subcategories?.map(sub => (
-                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                  <option value="">Seleccionar colección...</option>
+                  {categories.filter(c => !c.parentId).map(root => (
+                    <optgroup key={root.id} label={root.name.toUpperCase()}>
+                      <option value={root.id}>{root.name} (Principal)</option>
+                      {categories.filter(sub => sub.parentId === root.id).map(sub => (
+                        <option key={sub.id} value={sub.id}>&nbsp;&nbsp;• {sub.name}</option>
                       ))}
                     </optgroup>
                   ))}

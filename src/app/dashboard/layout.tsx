@@ -14,7 +14,7 @@ export default function DashboardLayout({
 
   return (
     <AuthGuard adminOnly={true}>
-      <div className="flex bg-[#f8f7f6] dark:bg-[#121212] min-h-screen font-display antialiased">
+      <div className="flex bg-[#f8f7f6] dark:bg-[#121212] min-h-screen font-display antialiased transition-colors duration-300">
         {/* Sidebar persistente con control de estado */}
         <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         

@@ -150,16 +150,16 @@ export default function AdminsPage() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-[#1a170e] rounded-2xl border border-gray-200 dark:border-[#433d28] overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1a170e] rounded-2xl border border-gray-200 dark:border-[#433d28] overflow-hidden shadow-sm transition-colors duration-300">
         <div className="p-6 border-b border-gray-200 dark:border-[#433d28] flex justify-between items-center bg-gray-50 dark:bg-[#302c1c]/30">
-          <h3 className="font-bold dark:text-white uppercase text-sm tracking-widest">Panel de Control de Acceso</h3>
+          <h3 className="font-bold text-gray-900 dark:text-white uppercase text-sm tracking-widest">Panel de Control de Acceso</h3>
         </div>
 
         {/* VISTA DESKTOP: TABLA */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 dark:bg-[#302c1c]/50 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+              <tr className="bg-gray-50 dark:bg-[#302c1c]/50 text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest border-b border-gray-100 dark:border-[#433d28]">
                 <th className="px-6 py-4">Administrador</th>
                 <th className="px-6 py-4">Email Corporativo</th>
                 <th className="px-6 py-4 text-center">Alta en Sistema</th>
@@ -173,20 +173,20 @@ export default function AdminsPage() {
                 <tr><td colSpan={4} className="px-6 py-12 text-center text-gray-500 uppercase text-[10px] tracking-widest">No hay administradores registrados</td></tr>
               ) : (
                 admins.map((admin) => (
-                  <tr key={admin.id} className="hover:bg-gray-50 dark:hover:bg-[#302c1c]/30 transition-colors group">
+                  <tr key={admin.id} className="hover:bg-gray-50/80 dark:hover:bg-[#302c1c]/30 transition-colors group text-gray-900 dark:text-white">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-[#d4af35]/10 rounded-full flex items-center justify-center text-[#d4af35] font-black border border-[#d4af35]/20 shadow-sm">
                           {admin.name[0]?.toUpperCase()}
                         </div>
                         <div>
-                          <span className="font-bold dark:text-white text-sm uppercase">{admin.name}</span>
+                          <span className="font-bold text-sm uppercase">{admin.name}</span>
                           <span className="block text-[8px] text-[#d4af35] font-black uppercase tracking-tighter">Acceso Nivel 1</span>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-medium lowercase">{admin.email}</td>
-                    <td className="px-6 py-4 text-center text-[10px] text-gray-400 uppercase font-bold tracking-widest">
+                    <td className="px-6 py-4 text-center text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-widest">
                       {new Date(admin.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -216,20 +216,20 @@ export default function AdminsPage() {
                     <span className="material-symbols-outlined text-xl">shield_person</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="font-black dark:text-white text-xs uppercase truncate leading-tight">{admin.name}</p>
-                    <p className="text-[10px] text-[#d4af35] font-black uppercase tracking-tighter mt-0.5">Acceso Nivel Administrativo</p>
+                    <p className="font-black text-gray-900 dark:text-white text-xs uppercase truncate leading-tight">{admin.name}</p>
+                    <p className="text-[10px] text-[#d4af35] font-black uppercase tracking-tighter mt-0.5">Administrador</p>
                   </div>
                 </div>
 
                 <div className="bg-gray-50 dark:bg-[#302c1c]/30 p-3 rounded-xl border border-gray-100 dark:border-[#433d28]">
-                  <p className="text-[8px] text-gray-400 font-black uppercase tracking-widest mb-1">Email Corporativo</p>
-                  <p className="text-[10px] dark:text-gray-300 font-bold truncate lowercase">{admin.email}</p>
+                  <p className="text-[8px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest mb-1">Email Corporativo</p>
+                  <p className="text-[10px] text-gray-700 dark:text-gray-300 font-bold truncate lowercase">{admin.email}</p>
                 </div>
                 
                 <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-[#302c1c]">
                   <div className="flex flex-col">
-                    <p className="text-[8px] text-gray-400 font-black uppercase tracking-widest">Alta en Sistema</p>
-                    <p className="text-[10px] dark:text-gray-300 font-bold">{new Date(admin.createdAt).toLocaleDateString()}</p>
+                    <p className="text-[8px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest">Alta en Sistema</p>
+                    <p className="text-[10px] text-gray-700 dark:text-gray-300 font-bold">{new Date(admin.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div className="flex gap-1">
                     <button onClick={() => openModal(admin)} className="p-3 bg-gray-50 dark:bg-[#302c1c] rounded-xl text-gray-400 hover:text-[#d4af35] transition-colors">

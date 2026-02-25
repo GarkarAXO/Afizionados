@@ -108,16 +108,16 @@ export default function OrdersPage() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-[#1a170e] rounded-2xl border border-gray-200 dark:border-[#433d28] overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-[#1a170e] rounded-2xl border border-gray-200 dark:border-[#433d28] overflow-hidden shadow-sm transition-colors duration-300">
         <div className="p-6 border-b border-gray-200 dark:border-[#433d28]">
-          <h3 className="font-bold dark:text-white uppercase text-sm tracking-widest">Órdenes Realizadas</h3>
+          <h3 className="font-bold text-gray-900 dark:text-white uppercase text-sm tracking-widest">Órdenes Realizadas</h3>
         </div>
 
         {/* VISTA DESKTOP: TABLA */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 dark:bg-[#302c1c]/50 text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+              <tr className="bg-gray-50 dark:bg-[#302c1c]/50 text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest border-b border-gray-100 dark:border-[#433d28]">
                 <th className="px-6 py-4">ID Orden</th>
                 <th className="px-6 py-4">Coleccionista</th>
                 <th className="px-6 py-4">Inversión Total</th>
@@ -132,18 +132,18 @@ export default function OrdersPage() {
                 <tr><td colSpan={5} className="px-6 py-12 text-center text-gray-500 uppercase text-[10px] tracking-widest">No hay transacciones registradas</td></tr>
               ) : (
                 orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-[#302c1c]/30 transition-colors group">
+                  <tr key={order.id} className="hover:bg-gray-50/80 dark:hover:bg-[#302c1c]/30 transition-colors group text-gray-900 dark:text-white">
                     <td className="px-6 py-4">
-                      <p className="text-sm font-black dark:text-white uppercase">#ORD-{order.id.slice(-6).toUpperCase()}</p>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
+                      <p className="text-sm font-black uppercase">#ORD-{order.id.slice(-6).toUpperCase()}</p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-bold dark:text-white text-sm uppercase">{order.user?.name || 'Usuario Anónimo'}</p>
-                      <p className="text-[10px] text-gray-500 lowercase">{order.user?.email}</p>
+                      <p className="font-bold text-sm uppercase">{order.user?.name || 'Usuario Anónimo'}</p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 lowercase">{order.user?.email}</p>
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-black text-[#d4af35]">${(order.totalCents / 100).toLocaleString('es-MX')} {order.currency}</p>
-                      <p className="text-[10px] text-gray-400 uppercase font-bold">{order.items.length} piezas</p>
+                      <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold">{order.items.length} piezas</p>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border ${getStatusStyle(order.status)}`}>
@@ -156,7 +156,7 @@ export default function OrdersPage() {
                         <select 
                           value={order.status}
                           onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                          className="bg-transparent text-[10px] font-black uppercase text-gray-400 outline-none border-b border-transparent focus:border-[#d4af35] cursor-pointer"
+                          className="bg-transparent text-[10px] font-black uppercase text-gray-400 dark:text-gray-500 outline-none border-b border-transparent focus:border-[#d4af35] cursor-pointer"
                         >
                           <option value="PENDING">Pendiente</option>
                           <option value="PAID">Pagado</option>
@@ -184,7 +184,7 @@ export default function OrdersPage() {
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-[9px] text-[#d4af35] font-black uppercase tracking-widest">Orden ID</p>
-                    <p className="text-xs font-black dark:text-white uppercase leading-tight">#ORD-{order.id.slice(-6).toUpperCase()}</p>
+                    <p className="text-xs font-black text-gray-900 dark:text-white uppercase leading-tight">#ORD-{order.id.slice(-6).toUpperCase()}</p>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-[8px] font-black uppercase border ${getStatusStyle(order.status)}`}>
                     {order.status}
@@ -193,21 +193,21 @@ export default function OrdersPage() {
 
                 <div className="bg-gray-50 dark:bg-[#302c1c]/30 p-3 rounded-xl border border-gray-100 dark:border-[#433d28]">
                   <div className="flex justify-between items-center mb-2">
-                    <p className="text-[8px] text-gray-400 font-black uppercase tracking-widest">Coleccionista</p>
-                    <p className="text-[8px] text-gray-400 font-black uppercase tracking-widest">Fecha</p>
+                    <p className="text-[8px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest">Coleccionista</p>
+                    <p className="text-[8px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest">Fecha</p>
                   </div>
                   <div className="flex justify-between items-end">
                     <div className="min-w-0 pr-4">
-                      <p className="text-[10px] font-bold dark:text-white uppercase truncate leading-tight">{order.user?.name || 'Invitado'}</p>
-                      <p className="text-[9px] text-gray-500 truncate leading-tight mt-0.5">{order.user?.email}</p>
+                      <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase truncate leading-tight">{order.user?.name || 'Invitado'}</p>
+                      <p className="text-[9px] text-gray-500 dark:text-gray-400 truncate leading-tight mt-0.5">{order.user?.email}</p>
                     </div>
-                    <p className="text-[10px] dark:text-gray-300 font-black flex-shrink-0">{new Date(order.createdAt).toLocaleDateString()}</p>
+                    <p className="text-[10px] text-gray-700 dark:text-gray-300 font-black flex-shrink-0">{new Date(order.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-2">
                   <div className="flex flex-col">
-                    <p className="text-[8px] text-gray-400 font-black uppercase tracking-widest">Inversión Total</p>
+                    <p className="text-[8px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest">Inversión Total</p>
                     <p className="text-sm font-black text-[#d4af35]">${(order.totalCents / 100).toLocaleString('es-MX')}</p>
                   </div>
                   <div className="flex gap-2">
@@ -217,7 +217,7 @@ export default function OrdersPage() {
                     <select 
                       value={order.status}
                       onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                      className="bg-transparent text-[9px] font-black uppercase text-gray-400 outline-none border-b border-gray-200 dark:border-[#433d28] py-1 cursor-pointer"
+                      className="bg-transparent text-[9px] font-black uppercase text-gray-500 dark:text-gray-400 outline-none border-b border-gray-200 dark:border-[#433d28] py-1 cursor-pointer"
                     >
                       <option value="PENDING">Pend.</option>
                       <option value="PAID">Pag.</option>
