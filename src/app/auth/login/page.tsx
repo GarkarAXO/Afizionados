@@ -49,18 +49,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-[#f8f7f6] dark:bg-[#121212] min-h-screen flex items-center justify-center p-2 sm:p-4 text-white">
+    <div className="bg-[#f8f7f6] dark:bg-[#121212] min-h-screen flex items-center justify-center p-2 sm:p-4 text-gray-900 dark:text-white transition-colors duration-300">
       {isSuccess ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#f8f7f6] dark:bg-[#121212] animate-fade-in-up">
-          <div className="flex flex-col items-center justify-center text-center p-6 sm:p-8 w-full max-w-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#f8f7f6] dark:bg-[#121212] animate-fade-in-up">
+          <div className="flex flex-col items-center justify-center text-center p-6 sm:p-8 w-full max-w-lg">
             <div className="w-24 h-24 sm:w-32 sm:h-32 bg-[#d4af35]/10 rounded-full flex items-center justify-center text-[#d4af35] mb-6 sm:mb-8 ring-8 ring-[#d4af35]/5 animate-bounce">
               <span className="material-symbols-outlined text-5xl sm:text-6xl">verified_user</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl font-black dark:text-white uppercase tracking-tight mb-4">¡Bienvenido, {userName}!</h2>
-            <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] sm:text-sm tracking-[0.2em] sm:tracking-[0.4em] mb-8 sm:mb-12">
+            <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight mb-4 text-gray-900 dark:text-white leading-tight">
+              ¡Bienvenido, <br className="sm:hidden"/>{userName}!
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] sm:text-sm tracking-[0.2em] sm:tracking-[0.4em] mb-8 sm:mb-12 max-w-xs sm:max-w-md mx-auto">
               Sincronizando con la Bóveda Maestra de Afizionados...
             </p>
-            <div className="w-48 sm:w-64 h-2 bg-gray-100 dark:bg-[#302c1c] rounded-full overflow-hidden shadow-inner p-0.5">
+            <div className="w-48 sm:w-64 h-2 bg-gray-200 dark:bg-[#302c1c] rounded-full overflow-hidden shadow-inner p-0.5 border border-gray-100 dark:border-white/5">
               <div className="h-full bg-[#d4af35] animate-loading shadow-[0_0_20px_rgba(212,175,53,0.6)] rounded-full"></div>
             </div>
           </div>
