@@ -12,6 +12,10 @@ export async function POST(req: NextRequest) {
     if (!payload) return apiError('Unauthorized', 401)
     const { userId } = payload
 
+    const body = await req.json()
+    const { shippingDetails } = body
+
+    // 1. Obtener carrito del usuario
     const cart = await prisma.cart.findUnique({
       where: { userId },
       include: { items: { include: { product: true } } }
@@ -26,12 +30,14 @@ export async function POST(req: NextRequest) {
       0
     )
 
-    // Simulación de Checkout: crear orden y limpiar carrito
+    // 2. Transacción de Checkout: Crear Orden, Actualizar Stock y Limpiar Carrito
     const order = await prisma.$transaction(async (tx) => {
+      
+      // Crear la orden
       const newOrder = await tx.order.create({
         data: {
           userId,
-          status: 'PAID', // Simulación: Pago inmediato
+          status: 'PAID', // Simulamos pago exitoso para esta etapa
           totalCents,
           currency: 'MXN',
           items: {
@@ -44,14 +50,23 @@ export async function POST(req: NextRequest) {
         }
       })
 
-      // Limpiar carrito
+      // Actualizar el stock de cada producto (Piezas únicas reducen a 0)
+      for (const item of cart.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } }
+        })
+      }
+
+      // Limpiar el carrito del usuario
       await tx.cartItem.deleteMany({ where: { cartId: cart.id } })
 
       return newOrder
     })
 
-    return apiResponse(order, 201, 'Order placed successfully (Simulated)')
+    return apiResponse(order, 201, 'Adquisición procesada con éxito')
   } catch (error) {
-    return apiError('Error during checkout', 500, error)
+    console.error('Checkout error:', error)
+    return apiError('Error durante el procesamiento de la orden', 500, error)
   }
 }

@@ -33,18 +33,41 @@ export default function CheckoutPage() {
 
     try {
       const token = localStorage.getItem('token');
-      // En una implementación real, aquí llamaríamos a la API de /api/orders/checkout
-      // Simularemos el proceso para esta fase de diseño
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if (!token) {
+        router.push('/auth/login');
+        return;
+      }
+
+      const response = await fetch('/api/orders/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          shippingDetails: formData,
+          items: cart.map(item => ({
+            productId: item.id,
+            quantity: 1, // En piezas únicas la cantidad siempre es 1
+            priceAtPurchaseCents: item.priceCents
+          }))
+        })
+      });
+
+      const data = await response.json();
       
-      setIsSuccess(true);
-      clearCart();
-      
-      setTimeout(() => {
-        router.push('/arena');
-      }, 5000);
+      if (data.success) {
+        setIsSuccess(true);
+        clearCart();
+        
+        setTimeout(() => {
+          router.push('/arena');
+        }, 5000);
+      } else {
+        alert(data.message || 'Error al procesar la adquisición');
+      }
     } catch (error) {
-      alert('Error al procesar la adquisición');
+      alert('Error de conexión con la Arena');
     } finally {
       setLoading(false);
     }
