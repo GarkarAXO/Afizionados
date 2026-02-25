@@ -11,7 +11,16 @@ export async function GET(
     const { id } = await params
     const product = await prisma.product.findUnique({
       where: { id },
-      include: { details: true, images: true, certificates: true, category: true }
+      include: { 
+        details: true, 
+        images: true, 
+        certificates: true, 
+        category: true,
+        auctions: {
+          where: { status: 'ACTIVE' },
+          take: 1
+        }
+      }
     })
     if (!product) return apiError('Producto no encontrado', 404)
     return apiResponse(product)

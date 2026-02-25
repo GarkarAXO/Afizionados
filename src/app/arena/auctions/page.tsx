@@ -116,7 +116,10 @@ export default function ArenaAuctionsPage() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                  <Link href={`/arena/product/${auction.productId}`} className="flex-1 py-4 bg-[#d4af35] text-[#201d13] font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] text-center hover:brightness-110 active:scale-[0.98] transition-all shadow-lg">
+                  <Link 
+                    href={`/arena/auctions/${auction.id}`}
+                    className="flex-1 py-4 bg-[#d4af35] text-[#201d13] font-black rounded-2xl uppercase text-[10px] tracking-[0.2em] text-center hover:brightness-110 active:scale-[0.98] transition-all shadow-lg"
+                  >
                     Entrar a la Puja
                   </Link>
                   <button className="px-6 py-4 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl flex items-center justify-center hover:border-[#d4af35]/50 text-gray-400 hover:text-[#d4af35] transition-all">

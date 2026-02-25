@@ -14,6 +14,7 @@ interface Product {
   stock: number;
   images: { url: string, type: string }[];
   category?: { name: string };
+  auctions?: { id: string }[];
   details?: {
     fichaTecnica: string | null;
     infoColeccionista: string | null;
@@ -166,14 +167,14 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              {product.isAuction ? (
+              {product.isAuction && product.auctions?.[0] ? (
                 <Link 
-                  href={`/arena/auctions`}
+                  href={`/arena/auctions/${product.auctions[0].id}`}
                   className="flex-1 py-5 bg-[#d4af35] text-[#201d13] font-black rounded-2xl uppercase text-xs tracking-widest text-center hover:brightness-110 shadow-xl shadow-[#d4af35]/10"
                 >
                   Entrar a la Arena de Pujas
                 </Link>
-              ) : (
+              ) : !product.isAuction ? (
                 <button 
                   onClick={handleAddToCart}
                   className={`flex-1 py-5 font-black rounded-2xl uppercase text-xs tracking-widest text-center transition-all shadow-xl ${
@@ -184,6 +185,10 @@ export default function ProductDetailPage() {
                 >
                   {added ? 'Gema en Carrito' : 'Adquirir Pieza'}
                 </button>
+              ) : (
+                <div className="flex-1 py-5 bg-gray-500/10 text-gray-500 font-black rounded-2xl uppercase text-xs tracking-widest text-center border border-gray-500/20">
+                  Subasta Pendiente
+                </div>
               )}
               <button className="px-8 py-5 bg-white/5 border border-white/10 rounded-2xl hover:border-[#d4af35]/50 transition-all group">
                 <span className="material-symbols-outlined text-white group-hover:text-[#d4af35]">favorite</span>
