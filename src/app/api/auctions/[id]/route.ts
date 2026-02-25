@@ -3,6 +3,35 @@ import prisma from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
 import { apiResponse, apiError } from '@/lib/api-response'
 
+// GET: Obtener detalle de subasta (Público)
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const auction = await prisma.auction.findUnique({
+      where: { id },
+      include: {
+        product: {
+          include: { images: true, details: true }
+        },
+        bids: {
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          include: { user: { select: { name: true } } }
+        },
+        _count: { select: { bids: true } }
+      }
+    })
+
+    if (!auction) return apiError('Subasta no encontrada', 404)
+    return apiResponse(auction)
+  } catch (error) {
+    return apiError('Error fetching auction details', 500, error)
+  }
+}
+
 // PUT: Editar subasta (Solo ADMIN)
 export async function PUT(
   req: NextRequest,
