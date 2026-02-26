@@ -205,14 +205,14 @@ export default function ProfilePage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 space-y-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16 pb-32 md:pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-gray-50 dark:bg-[#1a170e] p-6 sm:p-12 rounded-[2rem] sm:rounded-[3rem] border border-gray-200 dark:border-white/5 shadow-2xl transition-colors">
-        <div className="flex items-center gap-4 sm:gap-10">
+        <div className="flex items-center gap-4 sm:gap-10 w-full min-w-0">
           <div className="w-16 h-16 sm:w-28 sm:h-28 bg-gradient-to-tr from-[#d4af35] to-[#f8f7f6] rounded-full flex items-center justify-center text-[#201d13] text-2xl sm:text-5xl font-black border-2 sm:border-4 border-white dark:border-[#0a0a0a] shadow-2xl flex-shrink-0">
             {user?.name?.[0]?.toUpperCase()}
           </div>
-          <div className="space-y-1 sm:space-y-2 min-w-0">
-            <h1 className="text-xl sm:text-5xl font-black uppercase tracking-tight text-gray-900 dark:text-white leading-tight truncate">{user?.name}</h1>
+          <div className="space-y-1 sm:space-y-2 flex-1 min-w-0">
+            <h1 className="text-xl sm:text-5xl font-black uppercase tracking-tight text-gray-900 dark:text-white leading-tight break-words">{user?.name}</h1>
             <p className="text-[#d4af35] font-black uppercase text-[8px] sm:text-xs tracking-[0.2em] truncate">{user?.email}</p>
             <div className="pt-1 sm:pt-2">
               <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-[#d4af35]/10 text-[#d4af35] border border-[#d4af35]/20 rounded-full text-[7px] sm:text-[8px] font-black uppercase tracking-widest">Élite</span>

@@ -56,7 +56,18 @@ function LoginContent() {
   };
 
   return (
-    <div className="bg-[#f8f7f6] dark:bg-[#121212] min-h-screen flex items-center justify-center p-2 sm:p-4 text-gray-900 dark:text-white transition-colors duration-300">
+    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 text-gray-900 dark:text-white transition-colors duration-300 overflow-hidden">
+      {/* Fondo para móvil (mismo que el de la sección izquierda en desktop) */}
+      <div 
+        className="absolute inset-0 md:hidden bg-cover bg-center transition-all duration-500"
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')" }}
+      >
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
+      </div>
+
+      {/* Fondo degradado para el body general */}
+      <div className="absolute inset-0 z-[-1] bg-[#f8f7f6] dark:bg-[#0a0a0a]"></div>
+
       {isSuccess ? (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#f8f7f6] dark:bg-[#121212] animate-fade-in-up">
           <div className="flex flex-col items-center justify-center text-center p-6 sm:p-8 w-full max-w-lg">
@@ -75,7 +86,7 @@ function LoginContent() {
           </div>
         </div>
       ) : (
-        <div className="w-full max-w-[1100px] flex flex-col md:flex-row bg-white dark:bg-[#1a170e] rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-[#433d28]">
+        <div className="w-full max-w-[1100px] flex flex-col md:flex-row bg-white/95 dark:bg-[#1a170e]/95 md:bg-white md:dark:bg-[#1a170e] backdrop-blur-md md:backdrop-blur-none rounded-[2rem] overflow-hidden shadow-2xl border border-gray-200 dark:border-[#433d28] relative z-10">
           <div 
             className="hidden md:flex md:w-1/2 relative bg-cover bg-center" 
             style={{ backgroundImage: "url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')" }}
@@ -85,68 +96,80 @@ function LoginContent() {
               <img src="/img/afizionadosB.png" alt="Afizionados Logo" className="h-24 w-auto object-contain" />
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-5xl font-black leading-tight">La Arena de los <br/><span className="text-[#d4af35] underline decoration-[#d4af35]/30">Coleccionistas Reales</span></h1>
-                <p className="text-gray-300 text-lg max-w-sm">Asegura tu lugar en la historia. Accede a memorabilia autenticada y coleccionables deportivos exclusivos.</p>
+                <p className="text-gray-300 text-lg max-w-sm font-medium">Asegura tu lugar en la historia. Accede a memorabilia autenticada y coleccionables deportivos exclusivos.</p>
               </div>
-              <div className="flex items-center gap-2 text-white/50 text-xs font-medium uppercase tracking-widest"><span>Conexión Segura y Encriptada</span></div>
+              <div className="flex items-center gap-2 text-white/50 text-xs font-black uppercase tracking-widest">
+                <span className="material-symbols-outlined text-sm">lock</span>
+                <span>Conexión Segura y Encriptada</span>
+              </div>
             </div>
           </div>
 
-          <div className="w-full md:w-1/2 p-6 sm:p-8 lg:p-12 flex flex-col justify-center relative bg-white dark:bg-[#1a170e]">
-            <div className="mb-6 sm:mb-8 text-center md:text-left">
-              <div className="md:hidden flex justify-center mb-6">
-                <img src="/img/afizionadosB.png" alt="Afizionados Logo" className="h-16 w-auto object-contain" />
+          <div className="w-full md:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative">
+            <div className="mb-10 text-center md:text-left">
+              <div className="md:hidden flex justify-center mb-8">
+                <img src="/img/afizionadosB.png" alt="Afizionados Logo" className="h-16 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,53,0.2)] dark:hidden" />
+                <img src="/img/afizionadosW.png" alt="Afizionados Logo" className="h-16 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,53,0.2)] hidden dark:block" />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900 dark:text-white uppercase tracking-tight">Bienvenido de nuevo</h2>
-              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Ingresa tus datos para acceder a tu bóveda.</p>
+              <h2 className="text-3xl sm:text-4xl font-black mb-3 text-gray-900 dark:text-white uppercase tracking-tight leading-none">Bienvenido</h2>
+              <p className="text-[#d4af35] text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">Ingresa a tu Bóveda Privada</p>
             </div>
 
-            {error && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-xs font-bold uppercase">{error}</div>}
+            {error && (
+              <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+                <span className="material-symbols-outlined text-sm">error</span>
+                {error}
+              </div>
+            )}
 
-            <form onSubmit={handleLogin} className="space-y-4 sm:space-y-5">
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Correo Electrónico</label>
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Credencial de Acceso</label>
                 <input 
                   type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full px-4 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] outline-none text-sm text-gray-900 dark:text-white font-medium"
-                  placeholder="coleccionista@arena.com" required
+                  className="block w-full px-5 py-4 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/5 rounded-2xl focus:border-[#d4af35] outline-none text-xs text-gray-900 dark:text-white font-bold tracking-widest transition-all"
+                  placeholder="CORREO@ELECTRÓNICO.COM" required
                 />
               </div>
 
-              <div>
-                <div className="flex justify-between mb-2">
-                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Contraseña</label>
-                  <Link href="/auth/forgot-password" title="Recuperar contraseña" className="text-[10px] font-black text-[#d4af35] hover:underline uppercase">¿Olvidaste tu contraseña?</Link>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center ml-1">
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Código de Seguridad</label>
+                  <Link href="/auth/forgot-password" title="Recuperar contraseña" className="text-[9px] font-black text-[#d4af35] hover:underline uppercase tracking-widest">¿Olvidaste tu contraseña?</Link>
                 </div>
                 <div className="relative">
                   <input 
                     type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-4 pr-12 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] outline-none text-sm text-gray-900 dark:text-white font-medium"
+                    className="block w-full pl-5 pr-14 py-4 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/5 rounded-2xl focus:border-[#d4af35] outline-none text-xs text-gray-900 dark:text-white font-bold tracking-widest transition-all"
                     placeholder="••••••••" required
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#d4af35] transition-colors">
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#d4af35] transition-colors">
                     <span className="material-symbols-outlined text-xl">{showPassword ? 'visibility_off' : 'visibility'}</span>
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center">
+              <div className="flex items-center gap-3 ml-1">
                 <input 
                   type="checkbox" id="remember-me" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-[#d4af35] focus:ring-[#d4af35] border-gray-300 dark:border-[#605739] rounded bg-white dark:bg-[#302c1c] cursor-pointer" 
+                  className="h-4 w-4 border-gray-300 dark:border-white/10 rounded-md bg-white dark:bg-[#0a0a0a] text-[#d4af35] focus:ring-[#d4af35] cursor-pointer" 
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-xs font-bold text-gray-500 dark:text-gray-400 cursor-pointer select-none uppercase tracking-tighter">Recordarme por 30 días</label>
+                <label htmlFor="remember-me" className="text-[9px] font-black text-gray-500 dark:text-gray-400 cursor-pointer select-none uppercase tracking-widest">Mantener sesión activa</label>
               </div>
 
               <button 
                 type="submit" disabled={loading}
-                className="w-full flex items-center justify-center py-4 bg-[#d4af35] text-[#201d13] font-black rounded-lg hover:brightness-110 active:scale-[0.99] transition-all tracking-widest uppercase text-xs disabled:opacity-50 shadow-lg shadow-[#d4af35]/20"
+                className="w-full py-5 bg-[#d4af35] text-[#201d13] font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all tracking-[0.2em] uppercase text-xs disabled:opacity-50 shadow-xl shadow-[#d4af35]/10 mt-4"
               >
-                {loading ? 'Entrando...' : 'Entrar a la Arena'}
+                {loading ? 'Validando...' : 'Entrar a la Arena'}
               </button>
             </form>
 
-            <div className="mt-8 text-center">
-              <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">¿Nuevo en la colección? <Link href="/auth/register" className="font-black text-[#d4af35] hover:underline underline-offset-4 ml-2">Crear una Cuenta</Link></p>
+            <div className="mt-12 text-center">
+              <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                ¿Aún no eres Guardián? 
+                <Link href="/auth/register" className="text-[#d4af35] hover:underline underline-offset-4 ml-2">Crear una Cuenta</Link>
+              </p>
             </div>
           </div>
         </div>

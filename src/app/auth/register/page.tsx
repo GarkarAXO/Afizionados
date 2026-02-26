@@ -51,7 +51,18 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="bg-[#f8f7f6] dark:bg-[#121212] min-h-screen flex items-center justify-center p-2 sm:p-4 text-gray-900 dark:text-white transition-colors duration-300">
+    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 text-gray-900 dark:text-white transition-colors duration-300 overflow-hidden">
+      {/* Fondo para móvil (mismo que el de la sección izquierda en desktop) */}
+      <div 
+        className="absolute inset-0 md:hidden bg-cover bg-center transition-all duration-500"
+        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')" }}
+      >
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"></div>
+      </div>
+
+      {/* Fondo degradado para el body general */}
+      <div className="absolute inset-0 z-[-1] bg-[#f8f7f6] dark:bg-[#0a0a0a]"></div>
+
       {isSuccess ? (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#f8f7f6] dark:bg-[#121212] animate-fade-in-up">
           <div className="flex flex-col items-center justify-center text-center p-6 sm:p-8 w-full max-w-lg">
@@ -70,7 +81,7 @@ export default function RegisterPage() {
           </div>
         </div>
       ) : (
-        <div className="w-full max-w-[1100px] flex flex-col md:flex-row bg-white dark:bg-[#1a170e] rounded-xl overflow-hidden shadow-2xl border border-gray-200 dark:border-[#433d28]">
+        <div className="w-full max-w-[1100px] flex flex-col md:flex-row bg-white/95 dark:bg-[#1a170e]/95 md:bg-white md:dark:bg-[#1a170e] backdrop-blur-md md:backdrop-blur-none rounded-[2rem] overflow-hidden shadow-2xl border border-gray-200 dark:border-[#433d28] relative z-10">
           
           <div 
             className="hidden md:flex md:w-1/2 relative bg-cover bg-center" 
@@ -81,51 +92,60 @@ export default function RegisterPage() {
               <img src="/img/afizionadosB.png" alt="Afizionados Logo" className="h-24 w-auto object-contain" />
               <div className="space-y-4">
                 <h1 className="text-4xl lg:text-5xl font-black leading-tight">Únete a la <br/><span className="text-[#d4af35] underline decoration-[#d4af35]/30">Elite del Coleccionismo</span></h1>
-                <p className="text-gray-300 text-lg max-w-sm">Crea tu cuenta hoy y comienza a pujar por las piezas más exclusivas del mundo deportivo.</p>
+                <p className="text-gray-300 text-lg max-w-sm font-medium">Crea tu cuenta hoy y comienza a pujar por las piezas más exclusivas del mundo deportivo.</p>
               </div>
-              <div className="flex items-center gap-2 text-white/50 text-xs font-medium uppercase tracking-widest"><span>Seguridad Garantizada</span></div>
+              <div className="flex items-center gap-2 text-white/50 text-xs font-black uppercase tracking-widest">
+                <span className="material-symbols-outlined text-sm">verified_user</span>
+                <span>Seguridad Garantizada</span>
+              </div>
             </div>
           </div>
 
-          <div className="w-full md:w-1/2 p-6 sm:p-8 lg:p-12 flex flex-col justify-center bg-white dark:bg-[#1a170e]">
-            <div className="mb-6 sm:mb-8 text-center md:text-left">
-              <div className="md:hidden flex justify-center mb-6">
-                <img src="/img/afizionadosB.png" alt="Afizionados Logo" className="h-16 w-auto object-contain" />
+          <div className="w-full md:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative">
+            <div className="mb-10 text-center md:text-left">
+              <div className="md:hidden flex justify-center mb-8">
+                <img src="/img/afizionadosB.png" alt="Afizionados Logo" className="h-16 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,53,0.2)] dark:hidden" />
+                <img src="/img/afizionadosW.png" alt="Afizionados Logo" className="h-16 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,53,0.2)] hidden dark:block" />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-900 dark:text-white uppercase tracking-tight">Crea tu Cuenta</h2>
-              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Forma parte de la comunidad de aficionados más grande.</p>
+              <h2 className="text-3xl sm:text-4xl font-black mb-3 text-gray-900 dark:text-white uppercase tracking-tight leading-none">Crea tu Cuenta</h2>
+              <p className="text-[#d4af35] text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">Forma parte de la comunidad de élite</p>
             </div>
 
-            {error && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-xs font-bold uppercase">{error}</div>}
+            {error && (
+              <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+                <span className="material-symbols-outlined text-sm">error</span>
+                {error}
+              </div>
+            )}
 
-            <form onSubmit={handleRegister} className="space-y-4 sm:space-y-5">
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre Completo</label>
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Nombre Completo</label>
                 <input 
                   type="text" value={name} onChange={(e) => setName(e.target.value)}
-                  className="block w-full px-4 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] outline-none text-sm text-gray-900 dark:text-white font-medium"
-                  placeholder="Tu nombre" required
+                  className="block w-full px-5 py-4 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/5 rounded-2xl focus:border-[#d4af35] outline-none text-xs text-gray-900 dark:text-white font-bold tracking-widest transition-all"
+                  placeholder="TU NOMBRE COMPLETO" required
                 />
               </div>
 
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Correo Electrónico</label>
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Correo Electrónico</label>
                 <input 
                   type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full px-4 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] outline-none text-sm text-gray-900 dark:text-white font-medium"
-                  placeholder="coleccionista@arena.com" required
+                  className="block w-full px-5 py-4 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/5 rounded-2xl focus:border-[#d4af35] outline-none text-xs text-gray-900 dark:text-white font-bold tracking-widest transition-all"
+                  placeholder="COLECCIONISTA@ARENA.COM" required
                 />
               </div>
 
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Contraseña</label>
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Código de Acceso</label>
                 <div className="relative">
                   <input 
                     type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-4 pr-12 py-3 bg-gray-50 dark:bg-[#302c1c] border border-gray-200 dark:border-[#605739] rounded-lg focus:ring-1 focus:ring-[#d4af35] outline-none text-sm text-gray-900 dark:text-white font-medium"
+                    className="block w-full pl-5 pr-14 py-4 bg-gray-50 dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/5 rounded-2xl focus:border-[#d4af35] outline-none text-xs text-gray-900 dark:text-white font-bold tracking-widest transition-all"
                     placeholder="••••••••" required
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#d4af35] transition-colors">
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#d4af35] transition-colors">
                     <span className="material-symbols-outlined text-xl">{showPassword ? 'visibility_off' : 'visibility'}</span>
                   </button>
                 </div>
@@ -133,14 +153,17 @@ export default function RegisterPage() {
 
               <button 
                 type="submit" disabled={loading}
-                className="w-full flex items-center justify-center py-4 bg-[#d4af35] text-[#201d13] font-black rounded-lg hover:brightness-110 active:scale-[0.99] transition-all tracking-widest uppercase text-xs disabled:opacity-50 shadow-lg shadow-[#d4af35]/20 mt-2"
+                className="w-full py-5 bg-[#d4af35] text-[#201d13] font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all tracking-[0.2em] uppercase text-xs disabled:opacity-50 shadow-xl shadow-[#d4af35]/10 mt-4"
               >
-                {loading ? 'Creando cuenta...' : 'Unirse a la Arena'}
+                {loading ? 'Procesando...' : 'Unirse a la Arena'}
               </button>
             </form>
 
-            <div className="mt-8 text-center">
-              <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">¿Ya tienes una cuenta? <Link href="/auth/login" className="font-black text-[#d4af35] hover:underline underline-offset-4 ml-2">Inicia Sesión</Link></p>
+            <div className="mt-10 text-center">
+              <p className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                ¿Ya eres miembro? 
+                <Link href="/auth/login" className="text-[#d4af35] hover:underline underline-offset-4 ml-2">Inicia Sesión</Link>
+              </p>
             </div>
           </div>
         </div>

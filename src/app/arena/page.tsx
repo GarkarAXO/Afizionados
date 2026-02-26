@@ -8,6 +8,7 @@ interface Product {
   id: string;
   title: string;
   priceCents: number;
+  stock: number;
   isAuction: boolean;
   images: { url: string }[];
   category?: { name: string };
@@ -75,17 +76,15 @@ export default function ArenaPage() {
         {loading ? (
           <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="space-y-4 animate-pulse">
-                <div className="aspect-[4/5] bg-gray-100 dark:bg-white/5 rounded-2xl"></div>
-                <div className="h-4 bg-gray-100 dark:bg-white/5 rounded w-2/3"></div>
-              </div>
+              <div key={i} className="aspect-[4/5] bg-gray-100 dark:bg-white/5 rounded-[2rem] animate-pulse"></div>
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {products.map((product) => (
-              <div key={product.id} className="group relative">
-                <div className="relative aspect-[4/5] bg-gray-100 dark:bg-[#1a170e] rounded-2xl border border-gray-200 dark:border-white/5 overflow-hidden transition-all duration-500 group-hover:border-[#d4af35]/30">
+              <div key={product.id} className="group flex flex-col bg-gray-50 dark:bg-[#1a170e] rounded-[2rem] border border-gray-200 dark:border-white/5 overflow-hidden transition-all duration-500 hover:border-[#d4af35]/30 shadow-sm hover:shadow-xl">
+                {/* Imagen */}
+                <div className="relative aspect-[4/5] overflow-hidden bg-gray-200 dark:bg-black/20">
                   {product.isAuction && (
                     <div className="absolute top-4 left-4 z-10 bg-[#d4af35] text-[#201d13] text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest animate-pulse">
                       Subasta
@@ -98,7 +97,9 @@ export default function ArenaPage() {
                       <span className="material-symbols-outlined text-5xl">image</span>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center gap-3 p-6">
+                  
+                  {/* Overlay Desktop */}
+                  <div className="hidden lg:flex absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center gap-3 p-6 text-white">
                     <Link href={`/arena/product/${product.id}`} className="w-full py-3 bg-white text-black font-black uppercase text-[10px] tracking-widest rounded-xl text-center hover:bg-[#d4af35] transition-colors">
                       Ver Detalles
                     </Link>
@@ -109,17 +110,33 @@ export default function ArenaPage() {
                     )}
                   </div>
                 </div>
-                <div className="mt-4 space-y-1">
-                  <p className="text-[9px] text-[#d4af35] font-black uppercase tracking-widest">{product.category?.name || 'Pieza Única'}</p>
-                  <h3 className="text-sm font-black uppercase tracking-tight text-gray-900 dark:text-white group-hover:text-[#d4af35] transition-colors line-clamp-1">{product.title}</h3>
-                  <p className="text-base font-black text-gray-700 dark:text-gray-300">
-                    {product.isAuction ? 'Base: ' : ''}${(product.priceCents / 100).toLocaleString('es-MX')}
-                  </p>
+
+                {/* Contenido */}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4 text-left">
+                  <div className="space-y-1">
+                    <p className="text-[9px] text-[#d4af35] font-black uppercase tracking-widest">{product.category?.name || 'Pieza Única'}</p>
+                    <h3 className="text-sm font-black uppercase tracking-tight text-gray-900 dark:text-white group-hover:text-[#d4af35] transition-colors line-clamp-2 min-h-[2.5rem] leading-tight">{product.title}</h3>
+                    <p className="text-base font-black text-gray-700 dark:text-gray-300">
+                      {product.isAuction ? 'Base: ' : ''}${(product.priceCents / 100).toLocaleString('es-MX')}
+                    </p>
+                  </div>
+
+                  {/* Botones Móvil */}
+                  <div className="flex lg:hidden flex-col gap-2 pt-2">
+                    <Link href={`/arena/product/${product.id}`} className="w-full py-3 bg-gray-200 dark:bg-white/5 text-gray-900 dark:text-white font-black uppercase text-[9px] tracking-widest rounded-xl text-center border border-gray-300 dark:border-white/5">
+                      Ver Detalles
+                    </Link>
+                    {!product.isAuction && (
+                      <button onClick={() => addToCart(product)} className="w-full py-3 bg-[#d4af35] text-[#201d13] font-black uppercase text-[9px] tracking-widest rounded-xl">
+                        Añadir a Bóveda
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-        )}
+        ) }
       </section>
 
       {/* CALL TO ACTION SECUNDARIO */}

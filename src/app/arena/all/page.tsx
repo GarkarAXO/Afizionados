@@ -8,6 +8,7 @@ interface Product {
   id: string;
   title: string;
   priceCents: number;
+  stock: number;
   isAuction: boolean;
   categoryId: string | null;
   images: { url: string }[];
