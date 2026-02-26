@@ -141,33 +141,32 @@ export default function AuctionRoomPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-2 gap-4 sm:gap-8 mb-8">
               <div className="space-y-1">
-                <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Oferta Actual</p>
-                <p className="text-4xl sm:text-5xl font-black text-[#d4af35] tracking-tighter">
-                  <span className="text-xl mr-1">$</span>
+                <p className="text-[9px] sm:text-[10px] text-gray-500 font-black uppercase tracking-widest">Oferta</p>
+                <p className="text-2xl sm:text-5xl font-black text-[#d4af35] tracking-tighter">
+                  <span className="text-sm sm:text-xl mr-0.5">$</span>
                   {(auction.currentPriceCents / 100).toLocaleString('es-MX')}
                 </p>
               </div>
               <div className="text-right space-y-1">
-                <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Pujas</p>
-                <p className="text-4xl sm:text-5xl font-black text-white">{auction._count.bids}</p>
+                <p className="text-[9px] sm:text-[10px] text-gray-500 font-black uppercase tracking-widest">Pujas</p>
+                <p className="text-2xl sm:text-5xl font-black text-white">{auction._count.bids}</p>
               </div>
             </div>
 
             {/* Formulario de Puja */}
             <form onSubmit={handlePlaceBid} className="space-y-4">
               <div className="relative group">
-                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-[#d4af35] font-black text-lg">$</div>
+                <div className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 text-[#d4af35] font-black text-base sm:text-lg">$</div>
                 <input 
                   type="number" 
                   value={bidAmount}
                   onChange={(e) => setBidAmount(parseFloat(e.target.value))}
-                  className="w-full bg-[#0a0a0a] border border-white/10 rounded-2xl py-5 pl-12 pr-6 text-xl font-black text-white outline-none focus:border-[#d4af35] transition-all"
+                  className="w-full bg-[#0a0a0a] border border-white/10 rounded-2xl py-4 sm:py-5 pl-10 sm:pl-12 pr-4 sm:pr-6 text-lg sm:text-xl font-black text-white outline-none focus:border-[#d4af35] transition-all"
                   step="0.01"
                   required
                 />
-                <p className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-500 uppercase tracking-widest">MXN</p>
               </div>
               
               <button 

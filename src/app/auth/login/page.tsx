@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [userName, setUserName] = useState('');
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,10 +34,16 @@ export default function LoginPage() {
         setUserName(data.data.user.name || 'Coleccionista');
         setIsSuccess(true);
         
+        // Guardamos los datos
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+
+        // Determinamos a dónde enviar al usuario
+        const redirectTo = searchParams.get('redirect');
+        const finalPath = redirectTo || (data.data.user.role === 'ADMIN' ? '/dashboard' : '/arena');
+        
         setTimeout(() => {
-          localStorage.setItem('token', data.data.token);
-          localStorage.setItem('user', JSON.stringify(data.data.user));
-          window.location.href = '/dashboard';
+          window.location.href = finalPath;
         }, 3000);
       } else {
         setError(data.message || 'Error al iniciar sesión');

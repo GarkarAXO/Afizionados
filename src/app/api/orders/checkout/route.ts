@@ -9,64 +9,74 @@ export async function POST(req: NextRequest) {
     const token = authHeader?.split(' ')[1]
     const payload = token ? verifyToken(token) : null
 
-    if (!payload) return apiError('Unauthorized', 401)
+    if (!payload) return apiError('No autorizado', 401)
     const { userId } = payload
 
     const body = await req.json()
-    const { shippingDetails } = body
+    const { items: clientItems } = body // Solo tomamos los IDs y cantidades
 
-    // 1. Obtener carrito del usuario
-    const cart = await prisma.cart.findUnique({
-      where: { userId },
-      include: { items: { include: { product: true } } }
-    })
-
-    if (!cart || cart.items.length === 0) {
-      return apiError('Cart is empty', 400)
+    if (!clientItems || clientItems.length === 0) {
+      return apiError('El manifiesto de adquisición está vacío', 400)
     }
 
-    const totalCents = cart.items.reduce(
-      (acc, item) => acc + item.product.priceCents * item.quantity,
-      0
-    )
+    // 1. OBTENER DATOS REALES DE LA DB (Protección contra manipulación de precios)
+    const productIds = clientItems.map((i: any) => i.productId)
+    const dbProducts = await prisma.product.findMany({
+      where: { id: { in: productIds } }
+    })
 
-    // 2. Transacción de Checkout: Crear Orden, Actualizar Stock y Limpiar Carrito
+    // 2. TRANSACCIÓN ATÓMICA
     const order = await prisma.$transaction(async (tx) => {
-      
-      // Crear la orden
+      let serverCalculatedTotal = 0
+      const orderItemsToCreate = []
+
+      for (const clientItem of clientItems) {
+        const product = dbProducts.find(p => p.id === clientItem.productId)
+
+        if (!product) throw new Error(`La pieza con ID ${clientItem.productId} no existe.`)
+        
+        // Verificación estricta de stock
+        if (product.stock < clientItem.quantity) {
+          throw new Error(`La pieza "${product.title}" ya ha sido adquirida por otro coleccionista.`)
+        }
+
+        // USAMOS EL PRECIO DE LA DB, NO EL DEL CLIENTE
+        serverCalculatedTotal += product.priceCents * clientItem.quantity
+        
+        orderItemsToCreate.push({
+          productId: product.id,
+          quantity: clientItem.quantity,
+          priceAtPurchaseCents: product.priceCents // Precio real de la DB
+        })
+      }
+
+      // Crear la orden con el total verificado por el servidor
       const newOrder = await tx.order.create({
         data: {
           userId,
-          status: 'PAID', // Simulamos pago exitoso para esta etapa
-          totalCents,
+          status: 'PAID',
+          totalCents: serverCalculatedTotal,
           currency: 'MXN',
           items: {
-            create: cart.items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              priceAtPurchaseCents: item.product.priceCents
-            }))
+            create: orderItemsToCreate
           }
         }
       })
 
-      // Actualizar el stock de cada producto (Piezas únicas reducen a 0)
-      for (const item of cart.items) {
+      // Reducir stock de forma segura
+      for (const item of orderItemsToCreate) {
         await tx.product.update({
           where: { id: item.productId },
           data: { stock: { decrement: item.quantity } }
         })
       }
 
-      // Limpiar el carrito del usuario
-      await tx.cartItem.deleteMany({ where: { cartId: cart.id } })
-
       return newOrder
     })
 
-    return apiResponse(order, 201, 'Adquisición procesada con éxito')
-  } catch (error) {
-    console.error('Checkout error:', error)
-    return apiError('Error durante el procesamiento de la orden', 500, error)
+    return apiResponse(order, 201, 'Adquisición procesada con éxito y verificada')
+  } catch (error: any) {
+    console.error('Security Checkout Error:', error.message)
+    return apiError(error.message || 'Error de seguridad en la transacción', 400)
   }
 }

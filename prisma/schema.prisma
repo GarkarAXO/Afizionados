@@ -63,10 +63,16 @@ model User {
 model Address {
   id String @id @default(cuid())
   userId String
+  
   street String
-  city String
+  numInterior String?
+  numExterior String?
+  colonia String?
+  municipio String?
   state String
   zipCode String
+  
+  isDefault Boolean @default(false)
 
   user User @relation(fields:[userId], references: [id])  
 }

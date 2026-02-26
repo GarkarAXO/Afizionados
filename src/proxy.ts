@@ -27,6 +27,7 @@ export function proxy(request: NextRequest) {
   if (
     pathname.startsWith('/api') &&
     !pathname.startsWith('/api/auth') &&
+    !pathname.startsWith('/api/utils') &&
     request.method !== 'GET'
   ) {
     const authHeader = request.headers.get('authorization')
@@ -40,7 +41,22 @@ export function proxy(request: NextRequest) {
     }
 
     const payload = verifyToken(token)
-    if (!payload || payload.role !== 'ADMIN') {
+    if (!payload) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid token' },
+        { status: 403 }
+      )
+    }
+
+    // Rutas permitidas para CLIENTES (No requieren ser ADMIN para escribir)
+    const isClientAllowed = 
+      pathname.startsWith('/api/orders/checkout') || 
+      pathname.includes('/bid') ||
+      pathname.startsWith('/api/user/favorites') ||
+      pathname.startsWith('/api/user/cart') ||
+      pathname.startsWith('/api/user/address');
+
+    if (payload.role !== 'ADMIN' && !isClientAllowed) {
       return NextResponse.json(
         { success: false, message: 'Access denied: Admin role required' },
         { status: 403 }
