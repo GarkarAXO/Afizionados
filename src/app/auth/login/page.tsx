@@ -108,8 +108,8 @@ function LoginContent() {
           <div className="w-full md:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative">
             <div className="mb-10 text-center md:text-left">
               <div className="md:hidden flex justify-center mb-8">
-                <img src="/img/afizionadosB.png" alt="Afizionados Logo" className="h-16 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,53,0.2)] dark:hidden" />
-                <img src="/img/afizionadosW.png" alt="Afizionados Logo" className="h-16 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,53,0.2)] hidden dark:block" />
+                <img src="/img/afizionadosW.png" alt="Afizionados Logo" className="h-16 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,53,0.2)] dark:hidden" />
+                <img src="/img/afizionadosB.png" alt="Afizionados Logo" className="h-16 w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,53,0.2)] hidden dark:block" />
               </div>
               <h2 className="text-3xl sm:text-4xl font-black mb-3 text-gray-900 dark:text-white uppercase tracking-tight leading-none">Bienvenido</h2>
               <p className="text-[#d4af35] text-[10px] sm:text-xs font-black uppercase tracking-[0.2em]">Ingresa a tu Bóveda Privada</p>
