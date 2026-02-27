@@ -1,155 +1,167 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useCart } from '@/context/CartContext';
 
-export default function LandingPage() {
-  const [email, setEmail] = useState('');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+interface Product {
+  id: string;
+  title: string;
+  priceCents: number;
+  stock: number;
+  isAuction: boolean;
+  images: { url: string }[];
+  category?: { name: string };
+}
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      setIsSubscribed(true);
-      setTimeout(() => {
-        setIsModalOpen(false);
-        setIsSubscribed(false);
-        setEmail('');
-      }, 3000);
+export default function ArenaHomePage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products');
+      const data = await response.json();
+      if (data.success) setProducts(data.data.slice(0, 8));
+    } catch (error) {
+      console.error('Error fetching gallery products');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="bg-[#0a0a0a] min-h-screen flex flex-col relative overflow-x-hidden text-white antialiased">
+    <div className="space-y-12 transition-colors duration-300">
       
-      {/* Fondo con Textura y Profundidad */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(212,175,53,0.08),transparent_70%)]"></div>
-        <div className="absolute top-0 left-0 w-full h-full opacity-10 sm:opacity-20" style={{ backgroundImage: 'radial-gradient(#d4af35 0.5px, transparent 0.5px)', backgroundSize: '30px 30px' }}></div>
-      </div>
-
-      {/* Contenedor Centrado Flexible */}
-      <div className="flex-1 flex flex-col items-center justify-center relative z-10 px-4 pt-20 pb-12 w-full max-w-5xl mx-auto">
+      {/* HERO BANNER */}
+      <section className="relative h-[60vh] sm:h-[70vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1504450758481-7338eba7524a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center scale-105 blur-[2px]"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-white dark:to-[#0a0a0a]"></div>
         
-        {/* Logo - Adaptado a móvil */}
-        <div className="mb-10 md:mb-16 animate-fade-in-up">
-          <img 
-            src="/img/afizionadosB.png" 
-            alt="Afizionados Logo" 
-            className="h-20 sm:h-28 md:h-36 w-auto object-contain drop-shadow-[0_0_30px_rgba(212,175,53,0.15)]"
-          />
-        </div>
-
-        {/* Título Principal - Escalado para 360px */}
-        <div className="space-y-6 md:space-y-8 text-center animate-fade-in-up px-2" style={{ animationDelay: '0.2s' }}>
-          <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-8xl font-black text-white uppercase tracking-[0.05em] leading-[1.1] md:leading-[0.9]">
-            La Arena <br/>
-            <span className="text-[#d4af35] text-outline-gold italic">Esta Despertando</span>
+        <div className="relative z-10 text-center px-4 max-w-4xl animate-fade-in-up">
+          <p className="text-[#d4af35] font-black uppercase text-[10px] sm:text-xs tracking-[0.5em] mb-4 drop-shadow-lg">Temporada 2026 • Colección Élite</p>
+          <h1 className="text-4xl sm:text-7xl font-black uppercase tracking-tight leading-none mb-6 text-white text-balance">
+            Adquiere una Pieza <br/>
+            <span className="text-outline-gold italic">de la Historia</span>
           </h1>
-          
-          <div className="flex items-center justify-center gap-3 sm:gap-6 py-2 md:py-4">
-            <div className="h-[1px] w-8 sm:w-24 bg-gradient-to-r from-transparent to-[#d4af35]/50"></div>
-            <p className="text-[#d4af35] font-black uppercase text-[8px] sm:text-xs md:text-sm tracking-[0.3em] sm:tracking-[0.6em] whitespace-nowrap">Memorabilia Auténtica</p>
-            <div className="h-[1px] w-8 sm:w-24 bg-gradient-to-l from-transparent to-[#d4af35]/50"></div>
-          </div>
-
-          <p className="text-gray-400 text-xs sm:text-base md:text-xl max-w-2xl mx-auto font-medium leading-relaxed px-2">
-            Estamos preparando el acceso exclusivo a las piezas más icónicas del deporte mundial. 
-            La historia está a punto de ser subastada.
+          <p className="text-gray-200 text-xs sm:text-lg max-w-xl mx-auto font-medium leading-relaxed mb-8 drop-shadow-md">
+            Memorabilia deportiva autenticada por los guardianes de la Arena. Gemas únicas firmadas y certificadas.
           </p>
-        </div>
-
-        {/* Status de la Bóveda */}
-        <div className="mt-12 md:mt-16 w-full max-w-[280px] sm:max-w-md md:max-w-xl animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-          <div className="flex justify-between items-end mb-3">
-            <div className="flex flex-col">
-              <span className="text-[8px] sm:text-[10px] font-black text-gray-500 uppercase tracking-widest mb-0.5 text-left">Protocolo de Seguridad</span>
-              <span className="text-[10px] sm:text-xs font-black text-white uppercase tracking-widest text-left">Sincronización</span>
-            </div>
-            <span className="text-sm sm:text-lg font-black text-[#d4af35] tabular-nums">85%</span>
-          </div>
-          <div className="h-1.5 sm:h-2 w-full bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
-            <div className="h-full bg-gradient-to-r from-[#9a7b2c] via-[#d4af35] to-[#f1c40f] w-[85%] rounded-full shadow-[0_0_15px_rgba(212,175,53,0.3)]"></div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/arena/all" className="w-full sm:w-auto px-8 py-4 bg-[#d4af35] text-[#201d13] font-black rounded-xl uppercase text-xs tracking-widest hover:scale-105 transition-all shadow-xl shadow-[#d4af35]/20 text-center">
+              Explorar Bóveda
+            </Link>
+            <Link href="/arena/auctions" className="w-full sm:w-auto px-8 py-4 bg-black/20 dark:bg-white/5 backdrop-blur-md border border-white/20 text-white font-black rounded-xl uppercase text-xs tracking-widest hover:bg-white/10 transition-all text-center">
+              Ver Subastas
+            </Link>
           </div>
         </div>
+      </section>
 
-        {/* Acciones */}
-        <div className="mt-16 md:mt-24 flex flex-col md:flex-row items-center md:justify-center gap-6 md:gap-12 animate-fade-in-up w-full" style={{ animationDelay: '0.6s' }}>
-          <Link 
-            href="/auth/login" 
-            className="w-full md:w-auto px-10 py-4 md:px-14 md:py-5 bg-[#d4af35] text-[#201d13] font-black rounded-xl uppercase text-[10px] sm:text-xs md:text-sm tracking-[0.2em] hover:scale-105 transition-all text-center shadow-lg shadow-[#d4af35]/10"
-          >
-            Entrada de Guardianes
-          </Link>
-          
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="px-8 py-2 text-gray-500 font-black uppercase text-[10px] sm:text-xs tracking-[0.2em] hover:text-[#d4af35] transition-all border-b border-transparent hover:border-[#d4af35]/30"
-          >
-            Recibir Invitación
-          </button>
+      {/* GALERÍA DE PIEZAS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="flex flex-col sm:flex-row justify-between items-end gap-4 mb-12 border-b border-gray-200 dark:border-white/5 pb-8">
+          <div>
+            <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-gray-900 dark:text-white">Recién Llegadas</h2>
+            <p className="text-[#d4af35] text-[10px] sm:text-xs font-black uppercase tracking-widest mt-2">Nuevas gemas en la bóveda</p>
+          </div>
+          <Link href="/arena/all" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">Ver catálogo completo</Link>
         </div>
-      </div>
 
-      {/* Footer Estético - Nunca se encimará */}
-      <footer className="relative z-10 w-full text-center px-6 py-12 md:py-16 mt-auto border-t border-white/5 bg-[#0a0a0a]">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12 opacity-30">
-          <span className="text-[8px] sm:text-[10px] text-white font-black uppercase tracking-[0.3em] sm:tracking-[0.4em]">Autenticidad Garantizada</span>
-          <span className="hidden md:block w-1.5 h-1.5 bg-[#d4af35] rounded-full"></span>
-          <span className="text-[8px] sm:text-[10px] text-white font-black uppercase tracking-[0.3em] sm:tracking-[0.4em]">Global Shipping</span>
-          <span className="hidden md:block w-1.5 h-1.5 bg-[#d4af35] rounded-full"></span>
-          <span className="text-[8px] sm:text-[10px] text-white font-black uppercase tracking-[0.3em] sm:tracking-[0.4em]">Arena VIP Access</span>
-        </div>
-      </footer>
+        {loading ? (
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="aspect-[4/5] bg-gray-100 dark:bg-white/5 rounded-[2rem] animate-pulse"></div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            {products.map((product) => (
+              <div key={product.id} className="group flex flex-col bg-gray-50 dark:bg-[#1a170e] rounded-[2rem] border border-gray-200 dark:border-white/5 overflow-hidden transition-all duration-500 hover:border-[#d4af35]/30 shadow-sm hover:shadow-xl">
+                {/* Imagen */}
+                <div className="relative aspect-[4/5] overflow-hidden bg-gray-200 dark:bg-black/20">
+                  {product.isAuction && (
+                    <div className="absolute top-4 left-4 z-10 bg-[#d4af35] text-[#201d13] text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest animate-pulse">
+                      Subasta
+                    </div>
+                  )}
+                  {product.images?.[0] ? (
+                    <img src={product.images[0].url} alt={product.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <span className="material-symbols-outlined text-5xl">image</span>
+                    </div>
+                  )}
+                  
+                  {/* Overlay Desktop */}
+                  <div className="hidden lg:flex absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center gap-3 p-6 text-white">
+                    <Link href={`/arena/product/${product.id}`} className="w-full py-3 bg-white text-black font-black uppercase text-[10px] tracking-widest rounded-xl text-center hover:bg-[#d4af35] transition-colors">
+                      Ver Detalles
+                    </Link>
+                    {!product.isAuction && (
+                      <button onClick={() => addToCart(product)} className="w-full py-3 bg-[#d4af35] text-[#201d13] font-black uppercase text-[10px] tracking-widest rounded-xl hover:brightness-110 transition-all">
+                        Añadir a Bóveda
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-      {/* MODAL DE INVITACIÓN */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-[#1a170e] w-full max-w-sm rounded-3xl border border-[#d4af35]/30 p-8 relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 p-4">
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-white transition-colors p-2">
-                <span className="material-symbols-outlined">close</span>
+                {/* Contenido */}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4 text-left">
+                  <div className="space-y-1">
+                    <p className="text-[9px] text-[#d4af35] font-black uppercase tracking-widest">{product.category?.name || 'Pieza Única'}</p>
+                    <h3 className="text-sm font-black uppercase tracking-tight text-gray-900 dark:text-white group-hover:text-[#d4af35] transition-colors line-clamp-2 min-h-[2.5rem] leading-tight">{product.title}</h3>
+                    <p className="text-base font-black text-gray-700 dark:text-gray-300">
+                      {product.isAuction ? 'Base: ' : ''}${(product.priceCents / 100).toLocaleString('es-MX')}
+                    </p>
+                  </div>
+
+                  {/* Botones Móvil */}
+                  <div className="flex lg:hidden flex-col gap-2 pt-2">
+                    <Link href={`/arena/product/${product.id}`} className="w-full py-3 bg-gray-200 dark:bg-white/5 text-gray-900 dark:text-white font-black uppercase text-[9px] tracking-widest rounded-xl text-center border border-gray-300 dark:border-white/5">
+                      Ver Detalles
+                    </Link>
+                    {!product.isAuction && (
+                      <button onClick={() => addToCart(product)} className="w-full py-3 bg-[#d4af35] text-[#201d13] font-black uppercase text-[9px] tracking-widest rounded-xl">
+                        Añadir a Bóveda
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* CALL TO ACTION SECUNDARIO */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 py-20">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-[#1a170e] dark:to-[#0a0a0a] rounded-[2rem] border border-gray-200 dark:border-[#d4af35]/20 p-8 sm:p-16 relative overflow-hidden text-center sm:text-left transition-colors">
+          <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-[#d4af35]/10 rounded-full blur-[100px]"></div>
+          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-12">
+            <div className="space-y-6">
+              <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight leading-none text-gray-900 dark:text-white text-balance">
+                ¿Tienes una pieza <br/>
+                <span className="text-[#d4af35] italic">legendaria?</span>
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-lg max-w-md font-medium leading-relaxed">
+                Nuestros expertos autentican y valúan tu memorabilia. Conviértete en un Guardian de la Arena.
+              </p>
+              <button className="px-8 py-4 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white font-black rounded-xl uppercase text-xs tracking-widest hover:border-[#d4af35]/50 transition-all shadow-sm">
+                Contactar Perito
               </button>
             </div>
-
-            {isSubscribed ? (
-              <div className="py-10 text-center animate-in zoom-in-95 duration-300">
-                <span className="material-symbols-outlined text-5xl text-[#d4af35] mb-4">check_circle</span>
-                <h3 className="text-xl font-black uppercase tracking-tight text-white mb-2">¡Solicitud Enviada!</h3>
-                <p className="text-gray-400 text-xs uppercase font-bold tracking-widest leading-relaxed">
-                  Has sido añadido a la lista de espera de la élite. Pronto recibirás noticias.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <h3 className="text-xl font-black uppercase tracking-tight text-white mb-2">Acceso Exclusivo</h3>
-                  <p className="text-gray-500 text-[10px] uppercase font-bold tracking-[0.2em]">Únete a la lista de coleccionistas reales</p>
-                </div>
-                
-                <form onSubmit={handleSubscribe} className="space-y-4">
-                  <input 
-                    type="email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="TU CORREO ELECTRÓNICO"
-                    className="w-full bg-[#0a0a0a] border border-[#d4af35]/20 rounded-xl px-4 py-4 text-xs text-white outline-none focus:border-[#d4af35] transition-all font-bold tracking-widest placeholder:text-gray-700"
-                    required
-                  />
-                  <button 
-                    type="submit"
-                    className="w-full bg-[#d4af35] text-[#201d13] font-black py-4 rounded-xl uppercase text-[10px] tracking-[0.2em] hover:brightness-110 transition-all"
-                  >
-                    Enviar Solicitud
-                  </button>
-                </form>
-                <p className="text-center text-[8px] text-gray-600 uppercase font-bold tracking-tighter">Al unirse, acepta recibir notificaciones exclusivas de la Arena.</p>
-              </div>
-            )}
+            <div className="w-48 h-48 sm:w-64 sm:h-64 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[120px] sm:text-[180px] text-[#d4af35]/20 animate-pulse">workspace_premium</span>
+            </div>
           </div>
         </div>
-      )}
+      </section>
     </div>
   );
 }
