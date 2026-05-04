@@ -25,8 +25,48 @@ export default function CheckoutPage() {
     zipCode: ''
   });
 
+  const [cardData, setCardData] = useState({
+    number: '',
+    expiry: '',
+    cvv: '',
+    holder: ''
+  });
+
+  const [cardType, setCardType] = useState<'visa' | 'mastercard' | 'amex' | 'unknown'>('unknown');
+
+  const detectCardType = (number: string) => {
+    const clean = number.replace(/\s/g, '');
+    if (clean.startsWith('4')) return 'visa';
+    if (/^5[1-5]/.test(clean) || /^2[2-7]/.test(clean)) return 'mastercard';
+    if (/^3[47]/.test(clean)) return 'amex';
+    return 'unknown';
+  };
+
   const [colonias, setColonias] = useState<string[]>([]);
   const [isSearchingCP, setIsSearchingCP] = useState(false);
+
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = matches && matches[0] || '';
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return v;
+    }
+  };
+
+  const formatExpiry = (value: string) => {
+    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    if (v.length >= 2) {
+      return v.substring(0, 2) + '/' + v.substring(2, 4);
+    }
+    return v;
+  };
 
   const fetchColonias = useCallback(async (cp: string, currentColonia?: string) => {
     if (cp.length !== 5) return;
@@ -61,12 +101,21 @@ export default function CheckoutPage() {
     if (cart.length === 0 && !isSuccess) {
       router.push('/arena');
     }
-    fetchSavedAddress();
+    
+    const initializeCheckout = async () => {
+      const address = await fetchSavedAddress();
+      if (address) {
+        // Si el usuario tiene una dirección guardada, la aplicamos por defecto
+        handleToggleSavedAddress(true, address);
+      }
+    };
+    
+    initializeCheckout();
   }, [cart, isSuccess, router]);
 
   const fetchSavedAddress = async () => {
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) return null;
 
     try {
       const response = await fetch('/api/user/address', {
@@ -80,16 +129,20 @@ export default function CheckoutPage() {
           const user = JSON.parse(userStr);
           setFormData(prev => ({ ...prev, name: user.name || '' }));
         }
+        return data.data;
       }
     } catch (err) {
       console.error('Error fetching saved address');
     }
+    return null;
   };
 
-  const handleToggleSavedAddress = async (checked: boolean) => {
+  const handleToggleSavedAddress = async (checked: boolean, addressToUse?: any) => {
     setUseSavedAddress(checked);
-    if (checked && savedAddress) {
-      const d = savedAddress;
+    const targetAddress = addressToUse || savedAddress;
+    
+    if (checked && targetAddress) {
+      const d = targetAddress;
       const addr = {
         street: d.street || '',
         numInterior: d.numInterior || '',
@@ -103,16 +156,7 @@ export default function CheckoutPage() {
       
       // Cargamos la lista de colonias silenciosamente para el selector
       if (addr.zipCode.length === 5) {
-        try {
-          const response = await fetch(`/api/utils/dipomex?cp=${addr.zipCode}`);
-          const data = await response.json();
-          if (!data.error && data.codigo_postal) {
-            const list = data.codigo_postal.colonias.map((c: any) => 
-              typeof c === 'string' ? c : (c.colonia || c.COLONIA || c.nombre || '')
-            );
-            setColonias(list);
-          }
-        } catch (e) { console.error(e); }
+        fetchColonias(addr.zipCode, addr.colonia);
       }
     } else {
       setFormData(prev => ({
@@ -138,7 +182,47 @@ export default function CheckoutPage() {
 
     const { name, street, colonia, municipio, state, zipCode } = formData;
     if (!name || !street || !colonia || !municipio || !state || !zipCode) {
-      setError('Por favor, completa todos los campos obligatorios.');
+      setError('Por favor, completa todos los campos de envío.');
+      return;
+    }
+
+    const { number, expiry, cvv, holder } = cardData;
+    if (!number || !expiry || !cvv || !holder) {
+      setError('Por favor, ingresa los datos de pago.');
+      return;
+    }
+
+    const cleanNumber = number.replace(/\s/g, '');
+    if (cleanNumber.length < 16) {
+      setError('El número de tarjeta debe tener 16 dígitos.');
+      return;
+    }
+
+    if (!expiry.includes('/') || expiry.length < 5) {
+      setError('Formato de vencimiento inválido (MM/YY).');
+      return;
+    }
+
+    const [m, y] = expiry.split('/');
+    const expMonth = parseInt(m, 10);
+    const expYear = parseInt(y, 10) + 2000;
+
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
+    if (expMonth < 1 || expMonth > 12) {
+      setError('El mes de vencimiento debe estar entre 01 y 12.');
+      return;
+    }
+
+    if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+      setError('La tarjeta ingresada ya ha caducado.');
+      return;
+    }
+
+    if (cvv.length < 3) {
+      setError('El CVV debe tener al menos 3 dígitos.');
       return;
     }
 
@@ -151,6 +235,9 @@ export default function CheckoutPage() {
         return;
       }
 
+      // Simulamos un pequeño delay de procesamiento de pago
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
       const response = await fetch('/api/orders/checkout', {
         method: 'POST',
         headers: {
@@ -159,6 +246,7 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify({
           shippingDetails: formData,
+          paymentDetails: { last4: cleanNumber.slice(-4), holder }, // Datos simulados para el servidor
           items: cart.map(item => ({ productId: item.id, quantity: 1 }))
         })
       });
@@ -260,14 +348,92 @@ export default function CheckoutPage() {
                   <input type="text" required value={formData.colonia || ''} onChange={(e) => setFormData({...formData, colonia: e.target.value})} className="w-full bg-gray-50 dark:bg-[#1a170e] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-xs text-gray-900 dark:text-white outline-none focus:border-[#d4af35] font-bold" />
                 )}
               </div>
-              <div><label className="block text-[9px] font-black text-gray-400 uppercase mb-2">Municipio</label><input type="text" value={formData.municipio || ''} readOnly className="w-full bg-gray-100 dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-xs text-gray-500 outline-none font-bold" /></div>
-              <div><label className="block text-[9px] font-black text-gray-400 uppercase mb-2">Estado</label><input type="text" value={formData.state || ''} readOnly className="w-full bg-gray-100 dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-xs text-gray-500 outline-none font-bold" /></div>
+              <div><label className="block text-[9px] font-black text-gray-400 uppercase mb-2">Municipio</label><input type="text" value={formData.municipio || ''} onChange={(e) => setFormData({...formData, municipio: e.target.value})} className="w-full bg-gray-50 dark:bg-[#1a170e] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-xs text-gray-900 dark:text-white outline-none focus:border-[#d4af35] font-bold" /></div>
+              <div><label className="block text-[9px] font-black text-gray-400 uppercase mb-2">Estado</label><input type="text" value={formData.state || ''} onChange={(e) => setFormData({...formData, state: e.target.value})} className="w-full bg-gray-50 dark:bg-[#1a170e] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-xs text-gray-900 dark:text-white outline-none focus:border-[#d4af35] font-bold" /></div>
             </div>
           </div>
 
           <div className="space-y-6 pt-8 border-t border-gray-100 dark:border-white/5">
             <h3 className="text-base sm:text-lg font-black uppercase tracking-widest text-[#d4af35] flex items-center gap-3"><span className="material-symbols-outlined">payments</span> 2. Protocolo de Pago</h3>
-            <div className="p-6 bg-gray-50 dark:bg-[#1a170e] rounded-2xl border-2 border-dashed border-[#d4af35]/20 flex items-center gap-4"><span className="material-symbols-outlined text-3xl text-[#d4af35]">lock</span><span className="text-[10px] font-black uppercase text-gray-600 dark:text-gray-400 tracking-widest leading-tight">Conexión Encriptada • Adquisición Protegida</span></div>
+            
+            <div className="bg-gray-50 dark:bg-[#1a170e] rounded-3xl p-6 sm:p-8 border border-gray-200 dark:border-white/10 space-y-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">Tarjeta de Crédito / Débito</span>
+                <div className="flex gap-2">
+                  <div className={`px-2 py-1 rounded text-[8px] font-bold transition-all ${cardType === 'visa' ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-200 dark:bg-white/5 text-gray-400 opacity-30'}`}>VISA</div>
+                  <div className={`px-2 py-1 rounded text-[8px] font-bold transition-all ${cardType === 'mastercard' ? 'bg-orange-500 text-white shadow-lg' : 'bg-gray-200 dark:bg-white/5 text-gray-400 opacity-30'}`}>MASTERCARD</div>
+                  <div className={`px-2 py-1 rounded text-[8px] font-bold transition-all ${cardType === 'amex' ? 'bg-emerald-500 text-white shadow-lg' : 'bg-gray-200 dark:bg-white/5 text-gray-400 opacity-30'}`}>AMEX</div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[9px] font-black text-gray-400 uppercase mb-2">Titular de la Tarjeta</label>
+                  <input 
+                    type="text" 
+                    required 
+                    placeholder="NOMBRE COMO APARECE EN LA TARJETA"
+                    value={cardData.holder}
+                    onChange={(e) => setCardData({...cardData, holder: e.target.value.toUpperCase()})}
+                    className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-xs text-gray-900 dark:text-white outline-none focus:border-[#d4af35] font-bold placeholder:text-gray-300 dark:placeholder:text-white/10" 
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-black text-gray-400 uppercase mb-2">Número de Tarjeta</label>
+                  <div className="relative">
+                    <input 
+                      type="text" 
+                      required 
+                      maxLength={19}
+                      placeholder="0000 0000 0000 0000"
+                      value={cardData.number}
+                      onChange={(e) => {
+                        const formatted = formatCardNumber(e.target.value);
+                        setCardData({...cardData, number: formatted});
+                        setCardType(detectCardType(formatted));
+                      }}
+                      className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-xs text-gray-900 dark:text-white outline-none focus:border-[#d4af35] font-bold tracking-widest placeholder:text-gray-300 dark:placeholder:text-white/10" 
+                    />
+                    <span className={`absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-xl transition-colors ${cardType !== 'unknown' ? 'text-[#d4af35]' : 'text-gray-300 dark:text-white/10'}`}>
+                      {cardType === 'amex' ? 'contactless' : 'credit_card'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase mb-2">Vencimiento</label>
+                    <input 
+                      type="text" 
+                      required 
+                      maxLength={5}
+                      placeholder="MM/YY"
+                      value={cardData.expiry}
+                      onChange={(e) => setCardData({...cardData, expiry: formatExpiry(e.target.value)})}
+                      className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-xs text-gray-900 dark:text-white outline-none focus:border-[#d4af35] font-bold text-center placeholder:text-gray-300 dark:placeholder:text-white/10" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-black text-gray-400 uppercase mb-2">CVV</label>
+                    <input 
+                      type="password" 
+                      required 
+                      maxLength={4}
+                      placeholder="•••"
+                      value={cardData.cvv}
+                      onChange={(e) => setCardData({...cardData, cvv: e.target.value.replace(/[^0-9]/g, '')})}
+                      className="w-full bg-white dark:bg-black/20 border border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-xs text-gray-900 dark:text-white outline-none focus:border-[#d4af35] font-bold text-center placeholder:text-gray-300 dark:placeholder:text-white/10" 
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-2 text-[8px] font-black uppercase text-gray-400">
+                <span className="material-symbols-outlined text-xs text-green-500">lock</span>
+                Transacción Encriptada mediante Protocolo SSL
+              </div>
+            </div>
           </div>
 
           {error && (<div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest animate-in slide-in-from-top-2 flex items-center gap-3"><span className="material-symbols-outlined text-sm">warning</span>{error}</div>)}

@@ -74,6 +74,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               </Link>
             );
           })}
+
+          <div className="pt-4 mt-4 border-t border-gray-100 dark:border-[#433d28]">
+            <Link
+              href="/"
+              onClick={onClose}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-[#d4af35] hover:bg-[#d4af35]/10 transition-all font-bold group"
+            >
+              <span className="material-symbols-outlined text-xl">visibility</span>
+              <span className="text-sm uppercase tracking-widest text-[10px]">Ver Arena (Pruebas)</span>
+            </Link>
+          </div>
         </nav>
 
         <div className="absolute bottom-0 w-full p-6 border-t border-gray-200 dark:border-[#433d28] bg-white dark:bg-[#1a170e]">

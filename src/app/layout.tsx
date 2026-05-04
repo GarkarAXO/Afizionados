@@ -95,13 +95,14 @@ function Navbar() {
   const [user, setUser] = useState<any>(null);
 
   const isAuthPage = pathname?.startsWith('/auth');
+  const isDashboardPage = pathname?.startsWith('/dashboard');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) setUser(JSON.parse(storedUser));
   }, [pathname]);
 
-  if (isAuthPage) return null;
+  if (isAuthPage || isDashboardPage) return null;
 
   return (
     <>
@@ -197,6 +198,8 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith('/auth');
+  const isDashboardPage = pathname?.startsWith('/dashboard');
+  const isSpecialPage = isAuthPage || isDashboardPage;
 
   return (
     <html lang="es" suppressHydrationWarning>
@@ -210,8 +213,8 @@ export default function RootLayout({
         <ThemeProvider>
           <CartProvider>
             <Navbar />
-            <main className={!isAuthPage ? "pb-20 md:pb-0" : ""}>{children}</main>
-            {!isAuthPage && (
+            <main className={!isSpecialPage ? "pb-20 md:pb-0" : ""}>{children}</main>
+            {!isSpecialPage && (
               <footer className="bg-gray-50 dark:bg-[#050505] border-t border-gray-200 dark:border-white/5 py-16 px-8 mt-20 mb-16 md:mb-0 text-center md:text-left transition-colors">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-12">
                   <div className="space-y-6 max-w-sm mx-auto md:mx-0">
