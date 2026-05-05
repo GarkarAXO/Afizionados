@@ -18,7 +18,9 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' },
       include: {
         user: {
-          select: { name: true, email: true }
+          include: {
+            addresses: true
+          }
         },
         items: {
           include: {

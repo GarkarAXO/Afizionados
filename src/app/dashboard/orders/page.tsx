@@ -11,6 +11,17 @@ interface Order {
   user: {
     name: string;
     email: string;
+    addresses: {
+      id: string;
+      street: string;
+      numExterior: string | null;
+      numInterior: string | null;
+      colonia: string | null;
+      municipio: string | null;
+      state: string;
+      zipCode: string;
+      isDefault: boolean;
+    }[];
   };
   items: {
     id: string;
@@ -42,7 +53,8 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/orders', {
+      // Añadimos un timestamp para evitar cache del navegador
+      const response = await fetch(`/api/orders?t=${Date.now()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -257,6 +269,29 @@ export default function OrdersPage() {
                 <div>
                   <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Fecha de Adquisición</label>
                   <p className="text-sm font-black dark:text-white uppercase">{new Date(selectedOrder.createdAt).toLocaleString('es-MX')}</p>
+                </div>
+              </div>
+
+              {/* Dirección de Envío */}
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-[#d4af35] uppercase tracking-widest">Dirección de Envío</label>
+                <div className="p-4 bg-gray-50 dark:bg-[#302c1c]/30 rounded-2xl border border-gray-100 dark:border-[#433d28]">
+                  {selectedOrder.user?.addresses && selectedOrder.user.addresses.length > 0 ? (
+                    (() => {
+                      const addr = selectedOrder.user.addresses.find(a => a.isDefault) || selectedOrder.user.addresses[0];
+                      return (
+                        <div className="text-xs uppercase font-bold text-gray-700 dark:text-gray-300 leading-relaxed">
+                          <p>{addr.street} #{addr.numExterior}{addr.numInterior ? `, Int. ${addr.numInterior}` : ''}</p>
+                          <p>Col. {addr.colonia || 'N/A'}, {addr.municipio || 'N/A'}</p>
+                          <p>{addr.state}, CP {addr.zipCode}</p>
+                        </div>
+                      );
+                    })()
+                  ) : !selectedOrder.user?.addresses ? (
+                    <p className="text-[10px] font-bold text-red-400 uppercase italic">Error: Datos de dirección no sincronizados</p>
+                  ) : (
+                    <p className="text-[10px] font-bold text-gray-400 uppercase italic">Sin dirección registrada en el perfil del coleccionista</p>
+                  )}
                 </div>
               </div>
 

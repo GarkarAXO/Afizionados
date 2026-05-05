@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
       ...lastBids.map(b => ({
         id: `bid-${b.id}`,
         title: 'Nueva Puja',
-        desc: `${b.user.name} pujó en ${b.auction.product.title}`,
+        desc: `${b.user?.name || 'Coleccionista'} pujó en ${b.auction?.product?.title || 'una pieza'}`,
         time: b.createdAt,
         icon: 'gavel',
         color: 'text-[#d4af35]'
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
       ...lastOrders.map(o => ({
         id: `ord-${o.id}`,
         title: 'Nueva Orden',
-        desc: `Adquisición de ${o.user?.name || 'Invitado'} por $${(o.totalCents / 100).toLocaleString()}`,
+        desc: `Adquisición de ${o.user?.name || 'Invitado'} por $${(o.totalCents / 100).toLocaleString('es-MX')}`,
         time: o.createdAt,
         icon: 'shopping_cart',
         color: 'text-green-500'
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
       ...lastUsers.map(u => ({
         id: `usr-${u.id}`,
         title: 'Nuevo Coleccionista',
-        desc: `${u.name || u.email} se ha unido a la Arena`,
+        desc: `${u.name || u.email || 'Anónimo'} se ha unido a la Arena`,
         time: u.createdAt,
         icon: 'person_add',
         color: 'text-blue-500'
@@ -61,7 +61,8 @@ export async function GET(req: NextRequest) {
     ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 8)
 
     return apiResponse(notifications)
-  } catch (error) {
-    return apiError('Failed to fetch notifications', 500, error)
+  } catch (error: any) {
+    console.error('Error fetching notifications:', error)
+    return apiError('Failed to fetch notifications', 500, error.message || error)
   }
 }

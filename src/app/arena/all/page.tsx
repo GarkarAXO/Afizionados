@@ -146,11 +146,13 @@ export default function ArenaAllProductsPage() {
           ) : (
             <div className="grid grid-cols-1 xs:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
               {filteredProducts.map((product) => (
-                <div key={product.id} className="group flex flex-col bg-gray-50 dark:bg-[#1a170e] rounded-[2rem] border border-gray-200 dark:border-white/5 overflow-hidden transition-all duration-500 hover:border-[#d4af35]/30 shadow-sm hover:shadow-xl">
+                <div key={product.id} className={`group flex flex-col bg-gray-50 dark:bg-[#1a170e] rounded-[2rem] border border-gray-200 dark:border-white/5 overflow-hidden transition-all duration-500 hover:border-[#d4af35]/30 shadow-sm hover:shadow-xl ${product.stock <= 0 ? 'grayscale opacity-75' : ''}`}>
                   {/* Imagen */}
                   <div className="relative aspect-[4/5] overflow-hidden bg-gray-200 dark:bg-black/20">
-                    {product.isAuction && (
+                    {product.isAuction ? (
                       <div className="absolute top-4 left-4 z-10 bg-[#d4af35] text-[#201d13] text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest">Subasta</div>
+                    ) : product.stock <= 0 && (
+                      <div className="absolute top-4 left-4 z-10 bg-red-600 text-white text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest">Agotado</div>
                     )}
                     {product.images?.[0] ? (
                       <img src={product.images[0].url} alt={product.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -161,7 +163,7 @@ export default function ArenaAllProductsPage() {
                     {/* Overlay Desktop */}
                     <div className="hidden lg:flex absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center gap-3 p-6 text-white">
                       <Link href={`/arena/product/${product.id}`} className="w-full py-3 bg-white text-black font-black uppercase text-[10px] tracking-widest rounded-xl text-center hover:bg-[#d4af35]">Ver Detalles</Link>
-                      {!product.isAuction && (
+                      {!product.isAuction && product.stock > 0 && (
                         <button onClick={() => addToCart(product)} className="w-full py-3 bg-[#d4af35] text-[#201d13] font-black uppercase text-[10px] tracking-widest rounded-xl">Añadir a Bóveda</button>
                       )}
                     </div>
@@ -181,8 +183,16 @@ export default function ArenaAllProductsPage() {
                         Ver Detalles
                       </Link>
                       {!product.isAuction && (
-                        <button onClick={() => addToCart(product)} className="w-full py-3 bg-[#d4af35] text-[#201d13] font-black uppercase text-[9px] tracking-widest rounded-xl">
-                          Añadir a Bóveda
+                        <button 
+                          onClick={() => product.stock > 0 && addToCart(product)} 
+                          disabled={product.stock <= 0}
+                          className={`w-full py-3 font-black uppercase text-[9px] tracking-widest rounded-xl transition-all ${
+                            product.stock > 0 
+                            ? 'bg-[#d4af35] text-[#201d13]' 
+                            : 'bg-gray-300 dark:bg-white/5 text-gray-500 cursor-not-allowed'
+                          }`}
+                        >
+                          {product.stock > 0 ? 'Añadir a Bóveda' : 'Agotado'}
                         </button>
                       )}
                     </div>

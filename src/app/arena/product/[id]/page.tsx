@@ -140,7 +140,7 @@ export default function ProductDetailPage() {
                 </p>
               </div>
               <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${product.stock > 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                {product.stock > 0 ? 'Disponible' : 'Adquirido'}
+                {product.stock > 0 ? 'Disponible' : 'Agotado'}
               </span>
             </div>
 
@@ -148,7 +148,19 @@ export default function ProductDetailPage() {
               {product.isAuction && product.auctions?.[0] ? (
                 <Link href={`/arena/auctions/${product.auctions[0].id}`} className="flex-1 py-5 bg-[#d4af35] text-[#201d13] font-black rounded-2xl uppercase text-xs tracking-widest text-center hover:brightness-110 shadow-lg shadow-[#d4af35]/20 transition-all">Entrar a la Puja</Link>
               ) : !product.isAuction ? (
-                <button onClick={handleAddToCart} className={`flex-1 py-5 font-black rounded-2xl uppercase text-xs tracking-widest text-center transition-all shadow-xl ${added ? 'bg-green-500 text-white' : 'bg-[#d4af35] text-[#201d13] hover:brightness-110'}`}>{added ? 'En Carrito' : 'Adquirir Pieza'}</button>
+                <button 
+                  onClick={() => product.stock > 0 && handleAddToCart()} 
+                  disabled={product.stock <= 0}
+                  className={`flex-1 py-5 font-black rounded-2xl uppercase text-xs tracking-widest text-center transition-all shadow-xl ${
+                    added 
+                    ? 'bg-green-500 text-white' 
+                    : product.stock > 0
+                      ? 'bg-[#d4af35] text-[#201d13] hover:brightness-110'
+                      : 'bg-gray-300 dark:bg-white/5 text-gray-500 cursor-not-allowed shadow-none'
+                  }`}
+                >
+                  {added ? 'En Carrito' : product.stock > 0 ? 'Adquirir Pieza' : 'Agotado'}
+                </button>
               ) : (
                 <div className="flex-1 py-5 bg-gray-500/10 text-gray-500 font-black rounded-2xl uppercase text-xs text-center border border-gray-200">Subasta Pendiente</div>
               )}
